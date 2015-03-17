@@ -1,0 +1,60 @@
+<div id="init_div" style="margin: 10% auto; height: 300px; width: 630px; font-family: tahoma; font-size: 1.0em;">
+  <div style="height: 100%; width: 100%; text-align: center;">Loading...</div>  
+</div>
+
+<div id="centered_dashview" class="centered_dashview" class="hide">
+    <div style="height:42px;background-color:#c5dbec;">
+      <span><img src="http://www.bia.gov/cs/groups/webteam/documents/site_assets/idc1-025191.jpg" border="0" /></span>
+    </div>
+    <div id="top_nav">
+      <span style="margin-left:25px;"><a id="go_create_form" class="ui-corner-top top_nav_selected">Create New Task</a></span>
+      <span style="margin-left:25px;"><a id="go_my_tasks">My Tasks (loading...)</a></span>
+      <span style="margin-left:25px;"><a id="go_my_assigned">My Assignments (loading...)</a></span>
+      <span style="margin-left:25px;" id="search_tab" ><input type="search" id="searchBox" /><a id="go_search_results">Search</a></span>
+      <div class="top-tips"></div>
+    </div>
+    
+    <div id="reports_view_toolbar_container">
+      <?!= getContent("report_view_toolbar.html") ?>
+    </div>
+    
+    <div id="create_task_form_container">
+      <?!= getContent("index.html") ?>
+    </div>
+    
+    <div id="my_assigned_tasks_container" class="hide">
+      <?!= getContent("my_assigned_tasks.html") ?>
+    </div>
+    
+    <div id="report_view_container" class="hide">
+      <?!= getContent("report_view.html") ?>    
+    </div>
+    
+    <div id="search_results_container" class="hide">
+      <?!= getContent("search.html") ?>
+    </div>
+    
+    <div id="dialogs_container">
+      <?!= getContent("common_dialogs.html") ?> <!-- can be loaded anywhere, here is fine -->
+    </div>
+    
+    
+<?!= getContent("style.css.html") ?>
+<?!= getContent("bison_connect_tasking_theme_roller.css.html") ?>
+<!--link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/redmond/jquery-ui.css" /-->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<?!= getContent("validation.js.html") ?>
+<?!= getContent("show_hide.js.html") ?>
+<?!= getContent("report_view_components.js") ?>
+<?!= getContent("validate_then_submit.js.html") ?>
+<?!= getContent("reports_view_jquery.js.html") ?>
+<?!= getContent("string_handling.js.html") ?>
+<?!= getContent("search_jquery.js.html") ?>
+<script>
+  $(function(){
+    $( '#init_div' ).remove();
+    $( '#centered_dashview' ).removeClass('hide');
+  });
+</script>
+</div>

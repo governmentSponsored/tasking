@@ -1,0 +1,1430 @@
+<script>
+$(function() {
+  var counter = 0;
+  var totalCounter = 0;
+  var categoryArray = [];
+  function addKeywordRemoveKeywordDialog(keyword) {
+      var currentKeywords = $('.keywordList');
+      currentKeywords.css("display", "block");
+      var newKeyword = keyword.toLowerCase();
+      $( tags ).attr("disabled", "disabled");
+      var removeKeyword = '<a href="#" style="float:right;" class="ui-icon ui-icon-closethick ui-state-default ui-corner-all removeKeyword"></a>';
+      $( currentKeywords ).append( '<li class="keywordListItem" id="keywordz"style="margin-bottom: 3px;">' + newKeyword + removeKeyword + '</li>' );
+      $( tags ).removeAttr("disabled", "disabled")
+               .val('');
+    $( ".removeKeyword" ).bind('click', function() {
+      $(this).parent().remove();
+  });
+  }
+  
+  function getCheckBoxData() {
+    categoryArray.length = 0;
+    $('input[name="category"]:checked').each(function() {
+      categoryArray.push($(this).val());
+    });
+    return categoryArray;
+  }
+
+//More Info Dialog
+  $( "#data_table, #my_assigned_data_table, #search_results_assignee_table, #search_results_table" ).on('click', '.more_info_link', function(){
+    //get values
+    var taskId, creator, requestingOffice, stakeholders, category, keywords, activityLogId;
+    taskId = $(this).data("moreinfo").taskId;
+    creator = $(this).data("moreinfo").creator;
+    requestingOffice = $(this).data("moreinfo").reqOffice;
+    stakeholders = $(this).data("moreinfo").stakeholders;
+    category = $(this).data("moreinfo").category;
+    keywords = $(this).data("moreinfo").tags;
+    activityLogId = $(this).data("moreinfo").activityLog;
+    var $this = $(this);
+    //set values
+    $( "#taskID_create" ).html(taskId);
+    $( "#taskCreator_create" ).html(creator);
+    $( "#stakeholders" ).val(stakeholders);
+    $( "#requestingOffice" ).val(requestingOffice);
+    $( "#lastAction" ).val('Loading activity log entries. Please wait...');
+    
+    //category value
+    for(var a=0; a<category.length; a++) {
+      $( 'input[name="category"][value=' + category[a] + ']' ).prop('checked',true)
+    }
+    
+    //keyword value
+    var keywordArray = keywords.split(', ');
+    $('.keywordList').empty();
+    for(var i=0; i<keywordArray.length; i++) {
+      addKeywordRemoveKeywordDialog(keywordArray[i]);
+    }
+    function alertThisShit(val) {
+      alert('Sorry the activity log cannot display now. Try showing this to the developers: ' + val);
+    }
+    
+    //activity log values
+    function updateActivityLog(return_array) {
+      $( "#lastAction" ).val('');
+      for(var j=0; j<return_array.length; j++) {
+        //[num,user,type,date,activity]
+        var num = return_array[j][0];
+        var user = return_array[j][1];
+        var type = return_array[j][2];
+        var date = return_array[j][3];
+        var activity = return_array[j][4];
+        $( "#activityLogList" ).append('<li><h5>Activity ' + num + ' - ' + type + ' - ' + user + ' - ' + date + '</h5><p>' + activity + '</p></li>');
+      }
+      $( "#activityLogList" ).accordion({
+        collapsible: true,
+        heightStyle: "content"
+      });
+      $( "#activityLogList" ).accordion( "enable" );
+    }
+    google.script.run.withSuccessHandler(updateActivityLog).withFailureHandler(alertThisShit).getActivityLogEntries(taskId);
+    
+    var rowId = $(this).closest('tr').index();
+    var viewTypeP = "";
+    if($(this).closest('table').prop('id')==='data_table'){ viewTypeP = 'mycreated'; }
+    else if($(this).closest('table').prop('id')==='my_assigned_data_table'){ viewTypeP = 'myassigned'; }
+    else if($(this).closest('table').prop('id')==='search_results_assignee_table'){ viewTypeP = 'searchassignee'; }
+    else if($(this).closest('table').prop('id')==='search_results_table'){ viewTypeP = 'searchcreateown'; }
+
+    $( "#taskForm" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height:675,
+      width:625,
+      modal: false,
+      title: "More Info",
+      dialogClass: "more-info-dialog-class",
+      open: function( event, ui ) {
+        $( document ).tooltip( "destroy" );
+      },
+      beforeClose: function() {
+        $( this ).dialog('destroy');
+        $('#taskForm')[0].reset();
+        $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+        $( "#activityLogList" ).empty()
+                               .accordion( "destroy" );
+        $("#documentUploadList").empty();
+        $("#activityLogList li").remove();
+        $("#doc-manager-dialog-create-form ol").empty();
+        $("#taskForm input, textarea, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+        $("[id$=Tips]").removeClass( "ui-icon ui-icon-check" );
+        $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+      },
+      buttons: {
+      "OK": function() {
+          var successCounter = 0;
+          var newStakeholders = $( "#stakeholders" ).val();
+          var newRequestingOffice = $( "#requestingOffice" ).val();
+          var newCategories = getCheckBoxData();
+          var newActivityLog = $( "#lastAction" ).val();
+          if($( "#activityDate" ).val() == '') {
+            var newActivityDate = 'No Date';
+          } else {
+            newActivityDate = $( "#activityDate" ).val();
+          }
+          var keywordArray = [];
+          $(".keywordListItem").each(function() {
+            keywordArray.push( $(this).text() );
+          });
+          var keywords = keywordArray.join(', ');
+          
+          //validation
+          var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+          var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+          var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+          var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));
+          
+          if(requestingOfficeCheck !== true) { successCounter++; updateTips( requestingOfficeCheck, $( "#requestingOfficeTips" ));} else { updateTips( " ", $( "#requestingOfficeTips" )); }
+          if(stakeholdersCheck !== true) { successCounter++; updateTips( stakeholdersCheck, $( "#stakeholdersTips" ));} else { updateTips( " ", $( "#stakeholdersTips" )); }
+          if(keywordsCheck !== true) { successCounter++; updateTips( keywordsCheck, $( "#tagsTips" ));} else { updateTips( " ", $( "#tagsTips" )); }
+          if(categoryCheck !== true) { successCounter++; updateTips( categoryCheck, $( "#categoryTips" ));} else { updateTips( " ", $( "#categoryTips" )); }
+          
+          if(successCounter === 0) {
+            updateTopTips("Saving...");
+            google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips).saveMoreInfoChanges(taskId, newRequestingOffice, newCategories, keywords, newStakeholders); //Save to scriptDb
+            if(activityLogVal != '' && activityLogVal != 'Loading activity log entries. Please wait...') {
+              google.script.run.withFailureHandler(alertThisShit).updateActivityLog(taskId, newActivityLog, newActivityDate,'Update'); 
+            }
+            $this.data("moreinfo",{reqOffice: newRequestingOffice, category: newCategories, tags: keywords, stakeholders: newStakeholders, taskId: taskId}) 
+            $( this ).dialog( "close" );
+          } else {
+            updateTips( "Please fix the fields marked in red", $( "#validateTips" ) );
+          }
+        },
+    Cancel: function() {
+        $("#taskForm input, textarea, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+        $("[id$=Tips]").removeClass( "ui-icon ui-icon-check" );
+        $( this ).dialog( "close" );
+        }
+      }
+    });
+    $( "#taskForm" ).dialog( "open" );
+});
+  
+//Doc Manager Dialog
+$( "#doc-manager-dialog" ).dialog({
+autoOpen: false,
+resizable: false,
+height:430,
+width:550,
+modal: false,
+dialogClass: "doc-manager-dialog-class",
+buttons: {
+    "OK": function() { 
+        var taskId = $( this ).data("dialogdata").taskid;
+	    var rowid = $( this ).data("dialogdata").rowid;
+        var tableSelector_str = $( this ).data("dialogdata").table;        
+        var $tableSelector = $( this ).data("dialogdata").tableselector;
+        //  if(tableSelector_str==="mycreated"){ var $tableSelector = $( "#data_table tbody" ); } else if(tableSelector_str==="myassigned"){ var $tableSelector = $( "#my_assigned_data_table tbody" ); }        
+		var cellToUpdate = $tableSelector.parent().find("tr").eq(rowid).find("td").eq(8).find(".attachments-inline");
+        
+		var updatedHtml = "";
+		cellToUpdate.html("");
+        //cellToUpdate.find("a").remove();
+        //cellToUpdate.text().replace(/,/g,"arg");
+		var total = $( "#doc-manager-dialog a ").length;
+        var attachmentsArray = [];
+		
+		$( "#doc-manager-dialog a ").each(function(index) {
+          //update data
+          attachmentsArray.push([$(this).html(), $(this).attr("href")]);
+          
+          //refresh interface
+          updatedHtml += "<a href='" + $(this).attr("href") + "' target='_blank'>" + $(this).html() + "</a>";		
+		  if (index !== total-1) {
+		    updatedHtml += ", ";
+		  }
+        });
+        
+        google.script.run.withSuccessHandler(updateTopTips).saveAttachmentsChange(taskId, attachmentsArray); //Update ScriptDb
+        $tableSelector.parent().find("tr").eq(rowid).find("td").eq(7).find(".attachments-inline").data("attachinfo", {taskid: taskId, table: tableSelector_str, rowid: rowid, attachments_array: attachmentsArray, tableselector: $tableSelector}); //Update jquery data cache		
+		cellToUpdate.html(updatedHtml); //Refresh interface
+        //cellToUpdate.prepend(updatedHtml);
+        
+        //v1.5 add button back
+        if($( "#doc-manager-dialog a").length>0){
+          cellToUpdate.append( "<button class='add-remove-attach' style='display:block;'>Add/Remove Attachments</button>" );
+        } else {
+          cellToUpdate.append( "<button class='add-remove-attach' style='display:block;'>Add Attachments</button>" );
+        }
+        
+          //Add Remove attachment
+        cellToUpdate.find( ".add-remove-attach" ).click(function(){    
+          var itemHtml = "";
+  
+          for(var i=0; i < attachmentsArray.length; i++){
+            itemHtml += "<li><a href='" + attachmentsArray[i][1] + "' target='_blank'>" + attachmentsArray[i][0] + "</a> &nbsp; "+
+            "<span class='remove_attachment' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'>(remove)</span></li>";
+          }
+          $( "#doc-manager-dialog ol" ).html("");
+          $( "#doc-manager-dialog ol" ).append(itemHtml);
+          $( ".remove_attachment" ).click(function(){ $(this).parent().remove(); });
+          $( "#doc-manager-dialog" ).data("dialogdata", {taskid: taskId, rowid: rowid, table: tableSelector_str, tableselector: $tableSelector});
+          $( "#doc-manager-dialog" ).dialog( "open" );
+        });
+        
+        //Reset Add/Remove doc form
+        $( "#add_attach_upload_file" ).val('');
+        $( "#add_attach_email_url" ).val('');
+        $( "#add_attach_url_name").val('');
+        $( "#add_attach_url_url").val('');
+		$( "input[name=add_attach_method]" ).prop("checked", false);
+		$( "#add_attach_url_form" ).addClass( "hide" );
+		$( "#add_attach_url_form" ).removeAttr("style" );
+		$( "#add_attach_upload_form" ).addClass( "hide" );
+		$( "#add_attach_upload_form" ).removeAttr("style" );
+        $( "#add_attach_email" ).addClass( "hide" );
+        $( "#add_attach_email" ).removeAttr("style" );
+        $( "#add_attach_url_name" ).val('').removeAttr("disabled", "disabled");
+        $( "#add_attach_url_url" ).val('').removeAttr("disabled", "disabled");
+        $( "#add_attach_email" ).val('').removeAttr("disabled", "disabled");
+        $( "#progressbar, #progressbar_create" ).addClass('hide').removeClass('show');
+        $( "#progressMessage" ).addClass('hide').removeClass('show');
+        $( ".documentUploadPopUp ol" ).html('');
+        $( this ).dialog( "close" );        
+        updateTopTips("Saving...");
+        },
+    Cancel: function() {
+		$( "#add_attach_upload_file" ).val('');
+        $( "#add_attach_email_url" ).val('');
+        $( "#add_attach_url_name").val('');
+        $( "#add_attach_url_url").val('');
+		$( "input[name=add_attach_method]" ).prop("checked", false);
+		$( "#add_attach_url_form" ).addClass( "hide" );
+		$( "#add_attach_url_form" ).removeAttr("style" );
+		$( "#add_attach_upload_form" ).addClass( "hide" );
+		$( "#add_attach_upload_form" ).removeAttr("style" );
+        $( "#add_attach_email" ).addClass( "hide" );
+        $( "#add_attach_email" ).removeAttr("style" );
+        $( "#add_attach_url_name" ).val('').removeAttr("disabled", "disabled");
+        $( "#add_attach_url_url" ).val('').removeAttr("disabled", "disabled");
+        $( "#add_attach_email" ).val('').removeAttr("disabled", "disabled");
+        $( "#progressbar, #progressbar_create" ).addClass('hide').removeClass('show');
+        $( "#progressMessage" ).addClass('hide').removeClass('show');
+        $( ".documentUploadPopUp ol" ).html('');
+        $( this ).dialog( "close" );
+        }
+    }
+});
+
+function setUrlAndNameArrayValues(return_array) {
+  updateTopTips('Email has been uploaded & converted');
+  var nameField = $( ".url_name" ).val();
+  for(var i=0; i<return_array.length; i++) {
+    var len = return_array.length-1;
+    var returnValueUrl = return_array[i][1];
+    if(i === len && nameField != '') {
+      var returnValueName = nameField;
+    } else {
+      returnValueName = return_array[i][0]; 
+    }
+    $( ".documentUploadPopUp ol" ).append("<li><a href='" + returnValueUrl + "' target='_blank'>" + returnValueName + "</a> &nbsp; "+
+            "<span class='remove_attachment' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'>(remove)</span></li>");
+    $( ".url_name" ).val('');
+    $( ".url_url" ).val('');
+    $( ".remove_attachment" ).click(function(){ $(this).parent().remove(); });
+  }
+      $("input, textarea, button").removeAttr("disabled", "disabled");
+      $(":button:contains('OK')").removeAttr("disabled","disabled").removeClass( 'ui-state-disabled' );
+      $(":button:contains('Cancel')").removeAttr("disabled","disabled").removeClass( 'ui-state-disabled' );
+      $( "#progressbar, #progressbar_create" ).progressbar( "destroy" );
+      $( "#progressMessage, #progressMessage_create" ).text("Upload Complete! Please Click OK.").addClass('success show').removeClass('wait hide');
+}
+
+function uploadUrl($uploadButton,$nameField,$urlField, createForm) {
+  $uploadButton.attr("disabled","disabled");
+  var urlNameAttach = $nameField.val();
+  var urlUrlAttach = $urlField.val();
+  var flag = true;
+  if(urlNameAttach === '') { 
+    urlNameAttach = urlUrlAttach.substring(0,20); 
+  } 
+  if(urlUrlAttach.indexOf('https://mail.google.com/mail/') > -1 && urlUrlAttach.indexOf('/viewer?') === -1 ) {
+    var taskIdUrl = $( "#doc-manager-dialog" ).data("dialogdata").taskid;
+    //progress bar & button disable
+    $( "#progressbar, #progressbar_create" ).progressbar({value: false}).addClass('show').removeClass('hide');
+    $(":button:contains('OK')").attr("disabled","disabled").addClass( 'ui-state-disabled' );
+    $(":button:contains('Cancel')").attr("disabled","disabled").addClass( 'ui-state-disabled' ); 
+    $( "#progressMessage, #progressMessage_create" ).text("Please wait while your email and attachments are uploaded.").addClass('wait show').removeClass('success hide');
+    //google function (email URL, task Id, include attachments, from create form or not)
+    if(createForm) {
+      google.script.run.withSuccessHandler(setUrlAndNameArrayValues).createPdfFromEmail(urlUrlAttach, taskIdUrl, true, true);
+    } else {
+      google.script.run.withSuccessHandler(setUrlAndNameArrayValues).createPdfFromEmail(urlUrlAttach, taskIdUrl, true);
+    }
+    updateTopTips('Uploading...');
+    $( $nameField, $urlField ).attr("disabled", "disabled")
+    var flag = false;
+  }
+  //Add http if user did not
+  if (urlUrlAttach.indexOf('http') === -1) { 
+    urlUrlAttach = 'http://' + urlUrlAttach;
+  }
+  //check to see if it was an email they were uploading.
+  if(flag) {
+    $( ".documentUploadPopUp ol" ).append("<li><a href='" + urlUrlAttach + "' target='_blank'>" + urlNameAttach + "</a> &nbsp; "+
+            "<span class='remove_attachment' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'>(remove)</span></li>");
+    $nameField.val('');
+    $urlField.val('');
+    $( ".remove_attachment" ).click(function(){ $(this).parent().remove(); });
+    $("input, textarea, button").removeAttr("disabled", "disabled");
+  }
+}
+
+$( "#add_attachment_from_url" ).click(function(){
+  uploadUrl($(this), $("#add_attach_url_name"), $("#add_attach_url_url"))
+});
+
+$( "#add_attachment_from_url_create" ).click(function(){
+  uploadUrl($(this), $("#add_attach_url_name_create"), $("#add_attach_url_url_create"), true);
+});
+
+function uploadEmailAndAttachments($button,attachmentName,$emailUrl,createForm) {
+  var checkboxVal = $('input[name="' + attachmentName + '"]:checked').val();
+  var emailUrl = $emailUrl.val();
+  if(emailUrl != '') {
+    var message = "Please wait while your email and attachments are uploaded."
+    if(checkboxVal === undefined) { checkboxVal = false; message = "Please wait while your email is uploaded."} else { checkboxVal = true; }
+    //progress bar & button disable
+    $( "#progressbar, #progressbar_create" ).progressbar({value: false}).addClass('show').removeClass('hide');
+    $(":button:contains('OK')").attr("disabled","disabled").addClass( 'ui-state-disabled' );
+    $(":button:contains('Cancel')").attr("disabled","disabled").addClass( 'ui-state-disabled' ); 
+    $( "#progressMessage, #progressMessage_create" ).text(message).addClass('wait show').removeClass('success hide');
+    updateTopTips('Uploading...');
+    $( $emailUrl, $button ).attr("disabled", "disabled")
+    //google function
+    if(createForm) {
+      google.script.run.withSuccessHandler(setUrlAndNameArrayValues).createPdfFromEmail(emailUrl, taskIdUrl, checkboxVal, true);
+    } else {
+      var taskIdUrl = $( "#doc-manager-dialog" ).data("dialogdata").taskid;
+      google.script.run.withSuccessHandler(setUrlAndNameArrayValues).createPdfFromEmail(emailUrl, taskIdUrl, checkboxVal);
+    }
+  }
+}
+
+$( "#add_attachment_from_email" ).click(function() {
+  uploadEmailAndAttachments($(this),'attachments', $( "#add_attach_email_url" ));
+});
+
+$( "#add_attachment_from_email_create" ).click(function() {
+  uploadEmailAndAttachments($(this), 'attachments_create', $( "#add_attach_email_url_create" ), true);
+});
+
+$( "[name=add_attach_method]" ).change(function(){
+	if($(this).val()==="url"){
+      $( "#progressMessage" ).addClass( "hide" );
+	  $( "#add_attach_url_form" ).removeClass( "hide" );
+      $( "#add_attach_url_form" ).show( "slide" );
+      $( "#add_attach_upload_form" ).hide( "slide" );
+      $( "#add_attach_email" ).hide( "slide" );
+	} else if($(this).val()==="upload") {
+      $( "#progressMessage" ).addClass( "hide" );
+      $( "#add_attach_upload_form" ).removeClass( "hide" );
+	  $( "#add_attach_url_form" ).hide( "slide" );
+      $( "#add_attach_email" ).hide( "slide" );
+      $( "#add_attach_upload_form" ).show( "slide" );
+	} else if($(this).val()==="email") {
+      $( "#progressMessage" ).addClass( "hide" );
+      $( "#add_attach_email" ).removeClass( "hide" );
+      $( "#add_attach_url_form" ).hide( "slide" );
+      $( "#add_attach_upload_form" ).hide( "slide" );
+      $( "#add_attach_email" ).show( "slide" );
+	} else if($(this).val()==="upload_create") {
+      $( "#progressMessage_create" ).addClass( "hide" );
+      $( "#add_attach_upload_form_create" ).removeClass( "hide" );
+	  $( "#add_attach_url_form_create" ).hide( "slide" );
+      $( "#add_attach_email_create" ).hide( "slide" );
+      $( "#add_attach_upload_form_create" ).show( "slide" );
+    } else if($(this).val()==="url_create") {
+      $( "#progressMessage_create" ).addClass( "hide" );
+      $( "#add_attach_url_form_create" ).removeClass( "hide" );
+	  $( "#add_attach_url_form_create" ).show( "slide" );
+      $( "#add_attach_email_create" ).hide( "slide" );
+      $( "#add_attach_upload_form_create" ).hide( "slide" );
+    } else if($(this).val()==="email_create") {
+      $( "#progressMessage_create" ).addClass( "hide" );
+      $( "#add_attach_email_create" ).removeClass( "hide" );
+	  $( "#add_attach_url_form_create" ).hide( "slide" );
+      $( "#add_attach_email_create" ).show( "slide" );
+      $( "#add_attach_upload_form_create" ).hide( "slide" );
+    }
+});
+
+  //upload the attachment function
+function uploadLocalFile($button,$nameField,$urlField,createForm) {
+  //on success, this stuff happens.
+  function onSuccess(return_obj) {
+    var documentName = return_obj[0];
+    var documentUrl = return_obj[1];
+      
+    updateTopTips("Upload was successful");
+      
+    $( ".documentUploadPopUp ol" ).append("<li><a href='" + documentUrl + "' target='_blank'>" + documentName + "</a> &nbsp; "+
+      "<span class='remove_attachment' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'>(remove)</span></li>");
+    $nameField.val('');
+    $urlField.val('');
+    $( ".remove_attachment" ).click(function(){ $(this).parent().remove(); });
+    
+    //remove disable from ok/cancel buttons, hide progress bar, change message
+    $("input, textarea, button").removeAttr("disabled", "disabled");
+    $(":button:contains('OK')").removeAttr("disabled","disabled").removeClass( 'ui-state-disabled' );
+    $(":button:contains('Cancel')").removeAttr("disabled","disabled").removeClass( 'ui-state-disabled' );
+    $( "#progressbar, #progressbar_create" ).progressbar( "destroy" );
+    $( "#progressMessage, #progressMessage_create" ).text("Upload Complete! Please Click OK.").addClass('success show').removeClass('wait hide');
+    $($button).removeAttr("disabled","disabled");
+    
+  }
+  function onFailure(error) {
+    updateTopTips( error.message );
+    $("input, textarea, button").removeAttr("disabled", "disabled");
+    $(":button:contains('OK')").removeAttr("disabled","disabled").removeClass( 'ui-state-disabled' );
+    $(":button:contains('Cancel')").removeAttr("disabled","disabled").removeClass( 'ui-state-disabled' );
+    $( "#progressbar, #progressbar_create" ).progressbar( "destroy" );
+    $( "#progressMessage, #progressMessage_create" ).text("Oops, something went wrong. Please try again.").addClass('wait show').removeClass('hide');
+    $($button).removeAttr("disabled","disabled");
+  }
+  
+  $( "#progressbar, #progressbar_create" ).progressbar({value: false}).addClass('show').removeClass('hide');
+  $(":button:contains('OK')").attr("disabled","disabled").addClass( 'ui-state-disabled' );
+  $(":button:contains('Cancel')").attr("disabled","disabled").addClass( 'ui-state-disabled' ); 
+  $( "#progressMessage, #progressMessage_create" ).text("Please wait while your file is uploaded.").addClass('wait show').removeClass('success hide');
+  $( $button ).attr("disabled","disabled");
+  updateTopTips("Uploading...");
+  if(createForm) {
+    google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).uploadFromSpreadsheetView(document.getElementById("add_attach_ss_upload_form_create"));
+  } else {
+    var taskIdUpload = $( "#doc-manager-dialog" ).data("dialogdata").taskid;
+    $( "#taskId_upload" ).val( taskIdUpload );
+    google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).uploadFromSpreadsheetView(document.getElementById("add_attach_ss_upload_form"));
+  }
+}
+
+$( "#add_attachment_from_upload" ).click(function() {
+  uploadLocalFile($(this), $( "#add_attach_url_name" ), $( "#add_attach_url_url" ));
+});
+
+$( "#add_attachment_from_upload_create" ).click(function() {
+  uploadLocalFile($(this), $( "#add_attach_url_name_create" ), $( "#add_attach_url_url_create" ), true);
+});
+//----------------------------------------------------//
+
+//More Info
+//on blur validation
+  $( ".task-owner-field" ).change(function(){
+    var returnValue = checkForBlankFields($( ".task-owner-field" ), "Task Owner", $( '#mo-taskOwnerTips' ));
+    if(returnValue !== true) { updateTips( returnValue, $( '#mo-taskOwnerTips' )); }
+  });
+  $( ".req-office-field" ).change(function(){
+    var returnValue = checkForBlankFields($( '.req-office-field' ), "Requesting Office", $( '#mo-taskNameTips' ));
+    if(returnValue !== true) { updateTips( returnValue, $( '#mo-taskNameTips' )); }
+  });
+  $( ".stakeholders-field" ).change(function(){
+    var returnValue = checkForBlankFields($( '.stakeholders-field' ), "Stakeholders", $( '#mo-stakeholdersTips' ));
+    if(returnValue !== true) { updateTips( returnValue, $( '#mo-stakeholdersTips' )); }
+  });
+  $( '#checkboxes-edit input[type=checkbox]' ).change(function(){
+    var returnValue = checkCheckBox($( "#checkboxes-edit" ), "Category", $( "#mo-categoryTips" ));
+    if(returnValue !== true) { updateTips( returnValue, $( "#mo-categoryTips" )); }
+  });
+  $( ".keyword-edit" ).change(function(){
+    var returnValue = checkSpecialChar($( ".keyword-edit" ), "Keywords", $( "#mo-tagsTips"), ',', 4);
+    if(returnValue !== true) { updateTips( returnValue, $( "#mo-tagsTips")); }
+  });
+
+//Complete date dialog
+  $( "#edit-completion-date" ).blur(function(){
+    var returnValue = checkForBlankFields($( "#edit-completion-date" ), "Completion Date", $( '#completionDateTips' ));
+    if(returnValue !== true) { updateTips( returnValue, $( '#completionDateTips' )); } else { updateTips( '', $( '#completionDateTips' )); }
+  });
+  
+$( "#complete-date-dialog" ).dialog({
+autoOpen: false,
+resizable: false,
+height:400,
+width:400,
+modal: false,
+close: function() {
+  var completionDate = $( "#edit-completion-date" ).val();
+  var completionDetails = $( "#edit-completion-details" ).val();
+  var taskStatus = $(this).data("dialogdata").status;
+  if(completionDate === '' || completionDetails === '') {
+    updateTopTips('Status not saved');
+  }
+  $( '#edit-completion-details' ).val('');
+},
+buttons: {
+    "OK": function() {
+        var taskId = $( this ).data("dialogdata").taskid;
+        var completionDate = $( "#edit-completion-date" ).val();
+        var completionDetails = $( "#edit-completion-details" ).val();
+        var $tableSelector = $(this).data("dialogdata").tableSelector;
+        var rowID = $(this).data("dialogdata").rowid;  
+        var taskStatus = $(this).data("dialogdata").status;
+        var activityLogId = $(this).data("dialogdata").activityLog;
+        var taskOwnerArray = $(this).data("dialogdata").owner;
+        var taskName = $(this).data("dialogdata").taskname;
+
+        if(completionDate !== '' && completionDetails !== '') {            
+          google.script.run.withSuccessHandler(updateTopTips).saveCompletionDate(taskId, completionDate); //Save to scriptDb
+          google.script.run.withSuccessHandler(updateTopTips).saveStatusChange(taskId, taskStatus); //Save to scriptDb
+          google.script.run.updateActivityLog(taskId, completionDetails, $( "#edit-completion-date" ).val(),'Complete'); 
+          google.script.run.sendCompletedTaskEmailNotification(taskOwnerArray, taskName, completionDetails, $( "#edit-completion-date" ).val()); // Email Task Owners and Creator that task was complete
+          $( this ).dialog( "close" );
+          updateTopTips("Saving... Date is: " + completionDate);
+          
+          if($tableSelector.parent().attr("id")==="data_table"){             
+            $tableSelector.find("tr").eq(rowID).find("td").eq(6).prepend("<strong>Completed on " + $( "#edit-completion-date" ).val() + "</strong> <span>(<a class='archive_task_from_row'>Archive</a> | <a class='edit_status_from_row'>Edit</a>)</span>"); 
+          } else if($tableSelector.parent().attr("id")==="search_results_table") {
+            $tableSelector.find("tr").eq(rowID).find("td").eq(6).prepend("<strong>Completed on " + $( "#edit-completion-date" ).val() + "</strong> <span>(<a class='archive_task_from_row_search'>Archive</a> | <a class='edit_status_from_row'>Edit</a>)</span>"); 
+            $tableSelector.find( ".archive_task_from_row_search" ).bind('click', function() {
+            var taskid = $(this).parent().parent().closest('tr').find(".more_info_link").data("moreinfo").taskId;
+            if($(this).text()==="Archive"){
+              updateTopTips("Archiving...");
+              $(this).text("Re-open");
+              $(this).addClass("reopen_status_from_row");
+              $(this).removeClass("archive_task_from_row_search");
+              google.script.run.withSuccessHandler(updateTopTips).saveStatusChange(taskid, 'ar');
+            } else if($(this).text()==="Re-open") {
+              $(this).parent().parent().closest('tr').find("td").eq(6).find("select").show();
+              $(this).text("Cancel");
+            } else if($(this).text()==="Cancel"){
+              $(this).parent().parent().closest('tr').find("td").eq(6).find("select").hide();
+              $(this).text("Re-open");
+            }
+          });
+          } else { 
+            $tableSelector.find("tr").eq(rowID).find("td").eq(6).prepend("<strong>Completed on " + $( "#edit-completion-date" ).val() + "</strong> <span>(<a class='edit_status_from_row'>Edit</a>)</span>"); 
+          }          
+          $tableSelector.find("tr").eq(rowID).find("td").eq(6).find("select").val(taskStatus).hide();
+                   
+          //Archive 
+          $tableSelector.find("tr").eq(rowID).find( ".archive_task_from_row" ).click(function(){ 
+            var taskid = $(this).parent().parent().closest('tr').find(".more_info_link").data("moreinfo").taskId;
+
+            updateTopTips("Archiving...");
+            $(this).parent().closest('tr').remove();
+            google.script.run.withSuccessHandler(updateTopTips).saveStatusChange(taskid, 'ar');
+          });
+  
+          //"Un-complete"
+          $tableSelector.find("tr").eq(rowID).find( ".edit_status_from_row" ).click(function(){ 
+            if($(this).text()==="Edit"){
+              $(this).parent().parent().closest('tr').find("td").eq(6).find("select").show();
+              $(this).text("Cancel");
+            } else {
+              $(this).parent().parent().closest('tr').find("td").eq(6).find("select").hide();
+              $(this).text("Edit");
+            }
+          });
+          
+          $tableSelector.find("tr").eq(rowID).addClass('completed').removeClass('incomplete');
+          $tableSelector.find("tr").eq(rowID).find(".assignee-field, textarea").addClass('completed').removeClass('incomplete');
+        } else {
+          updateTopTips("Completion Date and Details are required.");
+        }
+        },
+    Cancel: function() { 
+        $( this ).dialog( "close" );
+        }
+    }
+});
+
+//-------- User List Manager
+$( "#manage-user-list-dialog" ).dialog({
+autoOpen: false,
+resizable: false,
+height:520,
+width:550,
+modal: false,
+close: function( event, ui ) {
+  $( '#add_user_popup' ).val('');
+  $( this ).dialog( "close" );
+},
+buttons: [
+           {
+             text: "OK", 
+             id: "user-manager-ok-btn",
+             click: function() { 
+               var launcher_ctx = $( this ).data("dialogdata").launcherctx;
+               var taskId = $( this ).data("dialogdata").taskid;
+               var rowid = $( this ).data("dialogdata").rowid;
+               var creator = $( this ).data("dialogdata").creator;
+               var owner = $( this ).data("dialogdata").owner;
+               var existingUsersList = $( this ).data("dialogdata").existingusers;
+               var removedUsersList = new Array();
+               var newUsersList = new Array();     
+               var $tableSelector = $(this).data("dialogdata").table;               
+               var ownersCell = $tableSelector.find("tr").eq(rowid).find("td").eq(3).find(".userListInline");
+               var assigneesCell = $tableSelector.find("tr").eq(rowid).find("td").eq(4).find(".userListInline");
+               var dueDate = $tableSelector.find("tr").eq(rowid).find("td").eq(2).find("input").val();
+               var taskName = $tableSelector.find("tr").eq(rowid).find("td").eq(1).find("input").val();
+               var priority = $tableSelector.find("tr").eq(rowid).find("td").eq(5).find("select").val();
+               var updatedHtml = "";
+               var total = $( "#manage-user-list-dialog ol li").length;
+               var userArray = [];
+               var ownersArrayFromUI = new Array();
+               var assigneesArrayFromUI = new Array(); 
+               
+               if(launcher_ctx==="Owners"){
+                 var cellToUpdate = ownersCell;
+               } else if(launcher_ctx==="Assignees"){
+                 cellToUpdate = assigneesCell;
+               } 
+               updatedHtml = $( "#manage-user-list-dialog ol").html();
+               cellToUpdate.html("");
+               cellToUpdate.append(updatedHtml); 
+               
+               ownersCell.find("li").each(function(i){
+                 ownersArrayFromUI.push($(this).find(".user_email_inline").prop('title'));
+               
+                 $(this).find(".lead_user").remove(); //<-- Lead
+                 $(this).find(".remove_user_popup").remove(); //<-- Backup
+
+                 if(i>0){ $(this).hide(); }
+               });
+               assigneesCell.find("li").each(function(i){
+                 assigneesArrayFromUI.push($(this).find(".user_email_inline").prop('title'));
+               
+                 $(this).find(".lead_user").remove(); //<-- Lead
+                 $(this).find(".remove_user_popup").remove(); //<-- Backup
+
+                 if(i>0){ $(this).hide(); }
+               });
+               
+               if(launcher_ctx==="Owners"){
+                 userArray = ownersArrayFromUI;
+               } else if(launcher_ctx==="Assignees"){
+                 userArray = assigneesArrayFromUI;
+               } 
+               
+               var launcherText="";
+               if(userArray.length<2){ launcherText="Add More"; }
+               else {
+                 if(userArray.length===2){ launcherText="and (" + (userArray.length-1) + ") other."; }
+                 else { launcherText="and (" + (userArray.length-1) + ") others."; }
+               }          
+               cellToUpdate.next().text(launcherText); //Update count for launcher
+
+               if(launcher_ctx==="Owners"){
+                 google.script.run.withSuccessHandler(updateTopTips).saveTaskOwnerChange(taskId, ownersArrayFromUI); //Update ScriptDb
+               } else if(launcher_ctx==="Assignees"){
+                 google.script.run.withSuccessHandler(updateTopTips).saveTaskAssigneeChange(taskId, assigneesArrayFromUI); //Update ScriptDb
+               }
+               $( '#add_user_popup' ).val('');
+               $( this ).dialog( "close" );
+               updateTopTips("Saving...");
+               
+               newUsersList = userArray;
+               newUsersList = newUsersList.filter(function(val) {
+                 return existingUsersList.indexOf(val) == -1;
+               });
+               
+               removedUsersList = existingUsersList;
+               removedUsersList = removedUsersList.filter(function(val) {
+                 return userArray.indexOf(val) == -1;
+               });
+               
+               //Send out notifications
+               /*if($( "#add_user_popup_notif_all" ).prop('checked')===true){
+
+               }*/ 
+               if($( "#add_user_popup_notif_new" ).prop('checked')===true){
+                 if(launcher_ctx === 'Owners') {
+                   google.script.run.sendEmailNotification(newUsersList.join(', '), assigneesArrayFromUI, taskName, dueDate, priority, 'You have been added as an Owner to the Task: ', false);
+                 } else {
+                   google.script.run.sendEmailNotification(ownersArrayFromUI.join(', '), newUsersList, taskName, dueDate, priority, 'You have been added as an Assignee to the Task: ', true);
+                 }
+               } 
+               if($( "#add_user_popup_add_sharing" ).prop('checked')){
+                 google.script.run.addUsersToDocuments(taskId,owner,creator,newUsersList);
+               }
+               if($( "#add_user_popup_remove_sharing" ).prop('checked')){ 
+                 google.script.run.removeUsersFromDocuments(taskId,owner,creator,removedUsersList);
+               }               
+               
+               $( this ).data("dialogdata").existingusers = userArray;
+        
+             }
+           },
+           {
+             text: "Cancel",
+             id: "user-manager-cancel-btn",
+             click: function() {
+               $( '#add_user_popup' ).val('');
+               $( this ).dialog( "close" );
+             }
+           }
+    ]
+});
+
+$( "#add_user_popup_btn" ).click(function(){
+  var newUserVal = $( "#add_user_popup" ).val();
+  if(newUserVal === '') { 
+    //validation 
+  } else {  
+    if($( "#manage-user-list-dialog ol" ).children().length===0){ //<-- Lead
+      $( '<li></li>' ).html("<span class='user_email_inline' title='" + newUserVal + "'>" + normalizeBIAUsernameAbbrevFirstName(newUserVal) + "</span> <span class='lead_user'>(Lead)</span> <span class='remove_user_popup' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'> (remove)</span>").appendTo( "#manage-user-list-dialog ol" );
+    //} else if($( "#manage-user-list-dialog ol" ).children().length===1){ //<-- Backup
+    //  $( '<li></li>' ).html("<span class='user_email_inline'>" + newUserVal + "</span> <span class='backup_user'>(Backup)</span> <span class='remove_user_popup' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'> (remove)</span>").appendTo( "#manage-user-list-dialog ol" );
+    } else {
+      $( '<li></li>' ).html("<span class='user_email_inline' title='" + newUserVal + "'>" + normalizeBIAUsernameAbbrevFirstName(newUserVal) + "</span> <span class='remove_user_popup' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'> (remove)</span>").appendTo( "#manage-user-list-dialog ol" );
+    }
+    $( "#add_user_popup" ).val('').focus();
+    $( ".remove_user_popup" ).click(function(){ $(this).parent().remove(); });
+  }
+});
+
+$( "#manage-user-list-dialog ol" ).sortable({
+    forcePlaceholderSize: true,
+    placeholder: "ui-state-highlight",
+    update: function( event, ui ) {
+      var leadText = "";
+      if($( "#manage-user-list-dialog" ).data("dialogdata").launcherctx==="Owners"){
+        leadText = "(Main Owner)";
+      } else {
+        leadText = "(Lead)";
+      }
+      $( "#manage-user-list-dialog ol" ).find("li").eq(0).find(".lead_user").remove(); //<-- Lead
+      $( "#manage-user-list-dialog ol" ).find("li").eq(0).find(".remove_user_popup").before(" <span class='lead_user'>" + leadText + "</span> "); //<-- Lead
+      $( "#manage-user-list-dialog ol" ).find("li").eq(1).find(".lead_user").remove(); //<-- Backup
+      $( "#manage-user-list-dialog ol" ).find("li:gt(1)").find(".lead_user").remove(); //<-- Everyone else
+    }
+  }).disableSelection();
+
+//End user List Manager
+
+
+//-------- Are you sure delete
+$( "#delete-are-you-sure-dialog" ).dialog({
+autoOpen: false,
+resizable: false,
+height:200,
+width:550,
+modal: false,
+buttons: {
+    "Delete": function() { 
+        var batch_array = $(this).data("deldialogdata").batcharray;
+        var tipsMessage = "";
+        if(batch_array.length===1){ tipsMessage = "Deleting 1 Task..."; }
+        else { tipsMessage = "Deleting " + batch_array.length + " Tasks..."; } 
+            
+        updateTopTips(tipsMessage);
+        google.script.run.withSuccessHandler(onDeleteSuccess).deleteSelectedTasks(batch_array);
+        $( this ).dialog( "close" );
+        },
+    Cancel: function() {
+        $( this ).dialog( "close" );
+        }
+    }
+});
+
+function onDeleteSuccess(return_msg) {
+  // Display success and refresh queue
+  updateTopTips(return_msg);
+  
+  var rowIds = $( "#delete-are-you-sure-dialog" ).data("deldialogdata").rowidarray;
+  for(var i=0; i<rowIds.length; i++){ $( "#data_table tbody tr" ).eq(rowIds[i]).hide(); }
+  
+  $( "#secondary_functions" ).hide();
+  $( "#go_my_tasks" ).text("My Tasks (refreshing...)");  
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("mycreated", "createDate", "desc");
+  loadMyCreatedDataTable();
+  $( "#go_my_assigned" ).text("My Assignments (refreshing...)");
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("myassigned", "dueDate", "asc");
+  loadMyAssignedDataTable();
+}
+//End Are you sure delete
+
+
+//-------- Are you sure archive
+$( "#archive-are-you-sure-dialog" ).dialog({
+autoOpen: false,
+resizable: false,
+height:200,
+width:550,
+modal: false,
+buttons: {
+    "Archive": function() { 
+        var batch_array = $(this).data("archdialogdata").batcharray;
+        var callingAction = $(this).data("archdialogdata").callingaction;
+        var tipsMessage = "";
+        
+        if(callingAction === "archiveall"){  //<-- Archive all
+          updateTopTips("Archiving All Completed Tasks...");  
+          google.script.run.withSuccessHandler(onArchiveSuccess).archiveAllMyTasks();
+        } 
+        else { //<-- Archive some
+          if(batch_array.length===1){ tipsMessage = "Archiving 1 Task..."; }
+          else { tipsMessage = "Archiving " + batch_array.length + " Tasks..."; } 
+        
+          updateTopTips(tipsMessage);           
+          google.script.run.withSuccessHandler(onArchiveSuccess).archiveSelectedTasks(batch_array);
+        }    
+        
+        $( this ).dialog( "close" );
+        },
+    Cancel: function() {
+        $( this ).dialog( "close" );
+        }
+    }
+});
+
+function onArchiveSuccess(return_msg) {
+  // Display success and refresh queue
+  updateTopTips(return_msg);
+  
+  var rowIds = $( "#archive-are-you-sure-dialog" ).data("archdialogdata").rowidarray;
+  for(var i=0; i<rowIds.length; i++){ $( "#data_table tbody tr" ).eq(rowIds[i]).hide(); }
+  
+  $( "#go_my_tasks" ).text("My Tasks (refreshing...)");  
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("mycreated", "createDate", "desc");
+  loadMyCreatedDataTable();
+  $( "#go_my_assigned" ).text("My Assignments (refreshing...)");
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("myassigned", "dueDate", "asc");
+  loadMyAssignedDataTable();
+}
+//End Are you sure archive
+
+
+//-------- Are you sure Copy
+$( "#copy-are-you-sure-dialog" ).dialog({
+autoOpen: false,
+resizable: false,
+height:200,
+width:550,
+modal: false,
+buttons: {
+    "Copy": function() { 
+        var batch_array = $(this).data("copydialogdata").batcharray;
+        var callingAction = $(this).data("copydialogdata").callingaction;
+        var tipsMessage = "";
+        
+        //<-- Copy selected
+        if(batch_array.length===1){ 
+          tipsMessage = "Copying 1 Task..."; 
+        } else { 
+          tipsMessage = "Copying " + batch_array.length + " Tasks. This may take a few moments..."; 
+        } 
+        
+        updateTopTips(tipsMessage);           
+        /*google.script.run.withSuccessHandler(onCopySuccess).copySelectedTasks($( '#copy-req-office' ).prop('checked'),
+                                                                              $( '#copy-stakeholders' ).prop('checked'),
+                                                                              $( '#copy-priority' ).prop('checked'),
+                                                                              $( '#copy-due-date' ).prop('checked'),
+                                                                              $( '#copy-completion-date' ).prop('checked'),
+                                                                              $( '#copy-status' ).prop('checked'),
+                                                                              $( '#copy-hours' ).prop('checked'),
+                                                                              $( '#copy-owner' ).prop('checked'),
+                                                                              $( '#copy-assignees' ).prop('checked'),
+                                                                              $( '#copy-attachments' ).prop('checked'),
+                                                                              $( '#copy-categories' ).prop('checked'),
+                                                                              $( '#copy-keywords' ).prop('checked'),
+                                                                              $( '#copy-activity-log' ).prop('checked'),
+                                                                              $( '#copy-new-name' ).val(),
+                                                                              batch_array); */
+        google.script.run.withSuccessHandler(onCopySuccess).copySelectedTasks(batch_array); 
+        
+        $( this ).dialog( "close" );
+        },
+    Cancel: function() {
+        $( this ).dialog( "close" );
+        }
+    }
+});
+
+function onCopySuccess(return_msg) {
+  // Display success and refresh queue
+  updateTopTips(return_msg);
+  
+  $( "#go_my_tasks" ).text("My Tasks (refreshing...)");  
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("mycreated", "createDate", "desc");
+  loadMyCreatedDataTable();
+  $( "#go_my_assigned" ).text("My Assignments (refreshing...)");
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("myassigned", "dueDate", "asc");
+  loadMyAssignedDataTable();
+}
+//End Are you sure copy
+
+
+//Refresh buttons
+$( "#refresh_my_tasks" ).button({ icons: { primary: "ui-icon-refresh" }}).click(function(){
+  //Update links to show num rows
+  $( "#go_my_tasks" ).text("My Tasks (refreshing...)");  
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("mycreated", "createDate", "desc");
+  loadMyCreatedDataTable();
+});
+
+$( "#refresh_my_assigned" ).button({ icons: { primary: "ui-icon-refresh" }}).click(function(){
+  //Update links to show num rows
+  $( "#go_my_assigned" ).text("My Assignments (refreshing...)");
+  //google.script.run.withSuccessHandler(createTable).getMyCreatedTasks("myassigned", "dueDate", "asc");
+  loadMyAssignedDataTable();
+});
+
+//$( '#create_template_dialog_btn, #fill-edit-template-form-btn' ).button().click(function(event) {
+//    var title = $(this).text();
+//    $( "#taskForm" ).dialog({
+//      autoOpen: false,
+//      resizable: false,
+//      height:675,
+//      width:900,
+//      modal: false,
+//      title: title,
+//      dialogClass: "create-template-dialog-class",
+//      open: function( event, ui ) {
+//        $( document ).tooltip( "destroy" );
+//        if(title==="Create a Task Template"){
+//          $("input, textarea").removeAttr("disabled", "disabled").removeClass( "ui-state-default ui-state-error" );
+//          $("#checkboxes, #priorityPickList").removeClass( "ui-state-default ui-state-error" );
+//          $( "#saveUserAction" ).addClass( "ui-state-default");
+//          $("[id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+//          $('#taskForm')[0].reset();
+//          $(".keywordListItem").remove();
+//          $(".assigneeListItem").remove();
+//          $(".ownerListItem").remove();
+//          $("#documentUploadList").empty();
+//          $("#doc-manager-dialog-create-form ol").empty();
+//        }
+//      },
+//      beforeClose: function() {
+//        $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+//        $( this ).dialog('destroy');
+//        $('#taskForm')[0].reset();
+//        $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+//        $("#documentUploadList").empty();
+//        $("#doc-manager-dialog-create-form ol").empty();
+//        $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+//        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+//        $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+//      },
+//      buttons: {
+//      "OK": function() {
+//          var successCounter = 0;
+//          //get files for saving and sharing
+//          var allFiles = getFilesForSaving();
+//          var newStakeholders = $( "#stakeholders" ).val();
+//          var newRequestingOffice = $( "#requestingOffice" ).val();
+//          var newCategories = getCheckBoxData();
+//          var newActivityLog = $( "#lastAction" ).val();
+//          if($( "#activityDate" ).val() == '') {
+//            var newActivityDate = 'No Date';
+//          } else {
+//            newActivityDate = $( "#activityDate" ).val();
+//          }
+//          var keywordArray = new Array();
+//          $(".keywordListItem").each(function() {
+//            keywordArray.push( $(this).text() );
+//          });
+//          var keywords = keywordArray.join(', ');
+//          
+//          var assigneeArray = new Array();
+//          $("ul.assigneeList li").each(function() {
+//            var leadIndex = $(this).text().indexOf('(Lead)');
+//            if(leadIndex > 0) {
+//              var newStr = $(this).text().split('(Lead)')[0];
+//              assigneeArray.push($.trim(newStr));
+//            } else {
+//              assigneeArray.push( $.trim($(this).text()) );
+//            }
+//          });
+//          var ownerArray = new Array();
+//          $("ul.ownerList li").each(function() {
+//            var leadIndex = $(this).text().indexOf('(Lead)');
+//            if(leadIndex > 0) {
+//              var newStr = $(this).text().split('(Lead)')[0];
+//              ownerArray.push($.trim(newStr));
+//            } else {
+//              ownerArray.push( $.trim($(this).text()) );
+//            }
+//          });
+//          
+//          var categoryArray = new Array();
+//          $('input[name="category"]:checked').each(function() {
+//            categoryArray.push($(this).val());
+//          });
+//          
+//          var shareTemplate = false;
+//          if($( '#privateTemplateRadio' ).prop('checked')){
+//            shareTemplate = false;
+//          } else {
+//            shareTemplate = true;
+//          }
+//          
+//          //validation
+//          var templateNameCheck = checkForBlankFields($( "#templateName" ), "Template Name", $( "#templateNameTips" ));
+//          var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+//          var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+//          var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+//          var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+//          var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+//          var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+//          var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+//          var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));    
+//          
+//          if(templateNameCheck !== true) { successCounter++; updateTips( templateNameCheck, $( "#templateNameTips" ));} else { updateTips( " ", $( "#templateNameTips" )); }
+//          if(taskNameCheck !== true) { successCounter++; updateTips( taskNameCheck, $( "#taskNameTips" ));} else { updateTips( " ", $( "#taskNameTips" )); }
+//          if(priorityCheck !== true) { successCounter++; updateTips( priorityCheck, $( "#priorityPickListTips" ));} else { updateTips( " ", $( "#priorityPickListTips" )); }
+//          if(requestingOfficeCheck !== true) { successCounter++; updateTips( requestingOfficeCheck, $( "#requestingOfficeTips" ));} else { updateTips( " ", $( "#requestingOfficeTips" )); }
+//          if(stakeholdersCheck !== true) { successCounter++; updateTips( stakeholdersCheck, $( "#stakeholdersTips" ));} else { updateTips( " ", $( "#stakeholdersTips" )); }
+//          if(keywordsCheck !== true) { successCounter++; updateTips( keywordsCheck, $( "#tagsTips" ));} else { updateTips( " ", $( "#tagsTips" )); }
+//          if(ownerEmailCheck !== true) { successCounter++; updateTips( ownerEmailCheck, $( "#taskOwnerTips" ));} else { updateTips( " ", $( "#taskOwnerTips" )); }
+//          if(assigneeEmailCheck !== true) { successCounter++; updateTips( assigneeEmailCheck, $( "#assignTaskToTips" )); } else { updateTips( " ", $( "#assignTaskToTips" )); }
+//          if(categoryCheck !== true) { successCounter++; updateTips( categoryCheck, $( "#categoryTips" ));} else { updateTips( " ", $( "#categoryTips" )); }
+//          
+//          if(successCounter === 0) {
+//            updateTopTips("Saving...");
+//            if(title==="Create a Task Template"){
+//              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+//                .createNewTemplate($( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+//                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+//                                   keywords, $( "#taskDescription" ).val(), allFiles);
+//            } else if(title==="Edit a Task Template"){
+//              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+//                .updateEditedTemplate(templateId, $( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+//                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+//                                   keywords, $( "#taskDescription" ).val(), allFiles);
+//            }
+//            $( this ).dialog( "close" );
+//          } else {
+//            updateTips( "Please fix the fields marked in red", $( "#validateTips" ) );
+//          }
+//        },
+//    Cancel: function() {
+//        $( this ).dialog( "close" );
+//        }
+//      }
+//    });
+//    $( "#taskForm" ).dialog( "open" );
+//});
+
+$( "#choose-template-dialog" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height:200,
+      width:400,
+      modal: false,
+      title: "Create Task Template",
+      dialogClass: "choose-template-dialog-class"
+});
+$( '#choose_template_dialog_btn, #edit_template_dialog_btn' ).button().click(function() {
+    var title = $(this).text();
+    //Setup template pick-list
+    if(title==="Create a Task Using a Template"){
+      google.script.run.withSuccessHandler(createTemplateSelectList).withFailureHandler(updateTopTips).
+        fetchTemplateList();
+    } else if(title==="Edit a Task Template"){
+      google.script.run.withSuccessHandler(createOwnersTemplateSelectList).withFailureHandler(updateTopTips).
+        fetchTemplateList();
+    } 
+    
+    $( "#choose-template-dialog" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height:200,
+      width:400,
+      modal: false,
+      title: "Create Task Template",
+      dialogClass: "choose-template-dialog-class",
+      open: function( event, ui ) {
+        $( document ).tooltip( "destroy" );
+      },
+      beforeClose: function() {
+        $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+        $('#taskForm')[0].reset();
+        $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+        $("#documentUploadList").empty();
+        $("#doc-manager-dialog-create-form ol").empty();
+        $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+        $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+        $( '#select_template_dropdown' ).html('');
+        $( '#select_template_dropdown' ).append('<option value="loading">Loading...</option>');
+        $( this ).dialog('destroy');
+      },
+      buttons: [
+           {
+             text: "OK", 
+             id: "fill-create-form-btn",
+             click: function() {
+               //get values
+               $( '.loader').remove(); //Remove any existing loaders
+               $( "#taskForm" ).after("<div class='loader'>"+
+                                             "  <div class='loading-img-txt-box'>"+
+                                             "    <img style='padding-top:4px;' src='http://www.bia.gov/cs/groups/webteam/documents/site_assets/idc1-024528.gif' /> <span class='loading-text'>Loading...</span>"+
+                                             "  </div>"+
+                                             "</div>");
+               google.script.run.withSuccessHandler(setCreateFormFromTemplateData).withFailureHandler(updateTopTips).
+                 getTemplateData($( '#select_template_dropdown' ).val());
+               $( this ).dialog( "close" );
+             }
+           },
+           {
+             text: "OK", 
+             id: "fill-edit-template-form-btn",
+             click: function() {
+               //get values
+               $( '.loader').remove(); //Remove any existing loaders
+               $( "#taskForm" ).after("<div class='loader'>"+
+                                             "  <div class='loading-img-txt-box'>"+
+                                             "    <img style='padding-top:4px;' src='http://www.bia.gov/cs/groups/webteam/documents/site_assets/idc1-024528.gif' /> <span class='loading-text'>Loading...</span>"+
+                                             "  </div>"+
+                                             "</div>");
+               var idToUpdate = $( '#select_template_dropdown' ).val();
+               google.script.run.withSuccessHandler(setCreateFormFromTemplateData).withFailureHandler(updateTopTips).
+                 getTemplateData(idToUpdate);
+               $( this ).dialog( "close" );
+               
+               createOrUpdateTemplate("Edit a Task Template", idToUpdate);
+             }
+           },
+           {
+             text: "Cancel",
+             id: "user-manager-cancel-btn",
+             click: function() {
+               $( '#add_user_popup' ).val('');
+               $( this ).dialog( "close" );
+             }
+           }
+        ]
+    });
+    if(title==="Create a Task Using a Template"){
+      $( '#fill-create-form-btn' ).show();
+      $( '#fill-edit-template-form-btn' ).hide();
+    } else if(title==="Edit a Task Template"){
+      $( '#fill-create-form-btn' ).hide();
+      $( '#fill-edit-template-form-btn' ).show();
+    } 
+    $( "#choose-template-dialog" ).dialog( "open" );
+});
+
+function createOrUpdateTemplate(title, templateId){
+    $( "#taskForm" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height:675,
+      width:900,
+      modal: false,
+      title: title,
+      dialogClass: "create-template-dialog-class",
+      open: function() {
+        $( document ).tooltip( "destroy" );
+      },
+      beforeClose: function() {
+        $( this ).dialog('destroy');
+        $('#taskForm')[0].reset();
+        $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+        $("#documentUploadList").empty();
+        $("#doc-manager-dialog-create-form ol").empty();
+        $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+        $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+        $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+      },
+      buttons: {
+      "OK": function() {
+          var successCounter = 0;
+          //get files for saving and sharing
+          var allFiles = getFilesForSaving();
+          var newStakeholders = $( "#stakeholders" ).val();
+          var newRequestingOffice = $( "#requestingOffice" ).val();
+          var newCategories = getCheckBoxData();
+          var newActivityLog = $( "#lastAction" ).val();
+          if($( "#activityDate" ).val() == '') {
+            var newActivityDate = 'No Date';
+          } else {
+            newActivityDate = $( "#activityDate" ).val();
+          }
+          var keywordArray = new Array();
+          $(".keywordListItem").each(function() {
+            keywordArray.push( $(this).text() );
+          });
+          var keywords = keywordArray.join(', ');
+          
+          var assigneeArray = new Array();
+          $("ul.assigneeList li").each(function() {
+            var leadIndex = $(this).text().indexOf('(Lead)');
+            if(leadIndex > 0) {
+              var newStr = $(this).text().split('(Lead)')[0];
+              assigneeArray.push($.trim(newStr));
+            } else {
+              assigneeArray.push( $.trim($(this).text()) );
+            }
+          });
+          var ownerArray = new Array();
+          $("ul.ownerList li").each(function() {
+            var leadIndex = $(this).text().indexOf('(Lead)');
+            if(leadIndex > 0) {
+              var newStr = $(this).text().split('(Lead)')[0];
+              ownerArray.push($.trim(newStr));
+            } else {
+              ownerArray.push( $.trim($(this).text()) );
+            }
+          });
+          
+          var categoryArray = new Array();
+          $('input[name="category"]:checked').each(function() {
+            categoryArray.push($(this).val());
+          });
+          
+          var shareTemplate = false;
+          if($( '#privateTemplateRadio' ).prop('checked')){
+            shareTemplate = false;
+          } else {
+            shareTemplate = true;
+          }
+          
+          //validation
+          var templateNameCheck = checkForBlankFields($( "#templateName" ), "Template Name", $( "#templateNameTips" ));
+          var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+          var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+          var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+          var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+          var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+          var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+          var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+          var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));    
+          
+          if(templateNameCheck !== true) { successCounter++; updateTips( templateNameCheck, $( "#templateNameTips" ));} else { updateTips( " ", $( "#templateNameTips" )); }
+          if(taskNameCheck !== true) { successCounter++; updateTips( taskNameCheck, $( "#taskNameTips" ));} else { updateTips( " ", $( "#taskNameTips" )); }
+          if(priorityCheck !== true) { successCounter++; updateTips( priorityCheck, $( "#priorityPickListTips" ));} else { updateTips( " ", $( "#priorityPickListTips" )); }
+          if(requestingOfficeCheck !== true) { successCounter++; updateTips( requestingOfficeCheck, $( "#requestingOfficeTips" ));} else { updateTips( " ", $( "#requestingOfficeTips" )); }
+          if(stakeholdersCheck !== true) { successCounter++; updateTips( stakeholdersCheck, $( "#stakeholdersTips" ));} else { updateTips( " ", $( "#stakeholdersTips" )); }
+          if(keywordsCheck !== true) { successCounter++; updateTips( keywordsCheck, $( "#tagsTips" ));} else { updateTips( " ", $( "#tagsTips" )); }
+          if(ownerEmailCheck !== true) { successCounter++; updateTips( ownerEmailCheck, $( "#taskOwnerTips" ));} else { updateTips( " ", $( "#taskOwnerTips" )); }
+          if(assigneeEmailCheck !== true) { successCounter++; updateTips( assigneeEmailCheck, $( "#assignTaskToTips" )); } else { updateTips( " ", $( "#assignTaskToTips" )); }
+          if(categoryCheck !== true) { successCounter++; updateTips( categoryCheck, $( "#categoryTips" ));} else { updateTips( " ", $( "#categoryTips" )); }
+          
+          if(successCounter === 0) {
+            updateTopTips("Saving...");
+            if(title==="Create a Task Template"){
+              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+                .createNewTemplate($( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+                                   keywords, $( "#taskDescription" ).val(), allFiles);
+            } else if(title==="Edit a Task Template"){ //Editing a template
+              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+                .updateEditedTemplate(templateId, $( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+                                   keywords, $( "#taskDescription" ).val(), allFiles);
+            }
+            $( this ).dialog( "close" );
+          } else {
+            updateTips( "Please fix the fields marked in red", $( "#validateTips" ) );
+          }
+        },
+    Cancel: function() {
+        $( this ).dialog( "close" );
+        }
+      }
+    });
+    $( "#taskForm" ).dialog( "open" );
+}
+
+function createTemplateSelectList(dbResult){
+  $( '#select_template_dropdown' ).html('');
+  $( '#select_template_dropdown' ).append('<optgroup label="Your Templates">');
+  for(var i=0;i<dbResult.templateLists.user_created.length;i++){
+    $( '#select_template_dropdown' ).find('optgroup').eq(0).append('<option value="' + dbResult.templateLists.user_created[i].tid + '">' + dbResult.templateLists.user_created[i].tname + '</option>');
+  }//END FOR
+  $( '#select_template_dropdown' ).append('<optgroup label="Community Templates">');
+  for(var i=0;i<dbResult.templateLists.shared.length;i++){
+    $( '#select_template_dropdown' ).find('optgroup').eq(1).append('<option value="' + dbResult.templateLists.shared[i].tid + '">' + dbResult.templateLists.shared[i].tname + '</option>');
+  }//END FOR
+}
+
+function createOwnersTemplateSelectList(dbResult){
+  $( '#select_template_dropdown' ).html('');
+  $( '#select_template_dropdown' ).append('<optgroup label="Templates Created by You">');
+  for(var i=0;i<dbResult.templateLists.user_created.length;i++){
+    $( '#select_template_dropdown' ).find('optgroup').eq(0).append('<option value="' + dbResult.templateLists.user_created[i].tid + '">' + dbResult.templateLists.user_created[i].tname + '</option>');
+  }//END FOR
+}
+
+//function setCreateFormFromTemplateData(dbResult){
+//alert("hi");
+//  //set values
+//  $( "#taskName" ).val(dbResult.Name); 
+//  $( "#taskDescription" ).val(dbResult.Description);
+//  $( "#dueDate" ).val(dbResult.dueDate);
+//  $( "#priorityPickList" ).val(dbResult.Priority);
+//  $( "#requestingOffice" ).val(dbResult.ReqOffice);
+//  $( "#stakeholders" ).val(dbResult.Stakeholder);
+//  $( "#templateName" ).val(dbResult.TemplateName);
+//  //Template sharing
+//  //category value
+//  if(dbResult.Shared==true){
+//    $( "#publicTemplateRadio" ).prop('checked',true);
+//    $( "#privateTemplateRadio" ).prop('checked',false);
+//  } else {
+//    $( "#publicTemplateRadio" ).prop('checked',false);
+//    $( "#privateTemplateRadio" ).prop('checked',true); 
+//  }
+//  
+//  //Owners
+//  var currentOwners = $('.ownerList');
+//  currentOwners.css("display", "block");
+//  var removeOwner = '<a href="#" style="float:right;" class="ui-icon ui-icon-closethick ui-state-default ui-corner-all removeOwner"></a>';
+//  for(var i=0; i<dbResult.Owner.length; i++){
+//    $( currentOwners ).append( '<li class="ownerListItem" id="ownerz" style="margin-bottom: 3px;">' + dbResult.Owner[i] + removeOwner + '</li>' ); 
+//  }
+//  $("ul.ownerList li:first-child").append( "<span class='lead_owner'>(Lead)</span>" );
+////  currentOwners.sortable( "destroy" );
+////  currentOwners.sortable({
+////    forcePlaceholderSize: true,
+////    placeholder: "ui-state-highlight",
+////    update: function( event, ui ) {
+////    $( ".ownerList" ).find("li").eq(0).find(".lead_owner").remove(); //<-- Lead
+////    $( ".ownerList" ).find("li").eq(0).find("a").before(" <span class='lead_owner'>(Lead)</span> "); //<-- Lead
+////    $( ".ownerList" ).find("li:gt(0)").find(".lead_owner").remove(); //<-- Everyone else
+////  }
+////    }).disableSelection();
+//alert("lalala");
+//  //Files
+//  var itemHtml = "";
+//  var attachmentsArray = [];
+//		
+//  for(var i = 0; i< dbResult.Files.length; i++){
+//    itemHtml += "<li><a href='" + dbResult.Files[i].url + "' target='_blank'>" + dbResult.Files[i].name + "</a> &nbsp; "+
+//            "<span class='remove_attachment' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'>(remove)</span></li>";
+//  }
+//  alert(itemHtml);
+//  $( '#documentUploadList' ).append(itemHtml);
+//  
+//  //Assignees 
+//  var currentAssignees = $('.assigneeList');
+//  currentAssignees.css("display", "block");
+//  var removeAssignee = '<a href="#" style="float:right;" class="ui-icon ui-icon-closethick ui-state-default ui-corner-all removeAssignee"></a>';
+//  for(var i=0; i<dbResult.Assignee.length; i++){
+//    $( currentAssignees ).append( '<li class="assigneeListItem" id="assigneez" style="margin-bottom: 3px;">' + dbResult.Assignee[i] + removeAssignee + '</li>' );
+//  }
+//  $("ul.assigneeList li:first-child").append( "<span class='lead_assignee'>(Lead)</span>" );
+//  
+//  $( "#lastAction" ).val(dbResult.Comment[0].activity);
+//  $( "activityDate" ).val(dbResult.Comment[0].date);
+//    
+//    //category value
+//    for(var a=0; a<dbResult.Category.length; a++) {
+//      $( 'input[name="category"][value=' + dbResult.Category[a] + ']' ).prop('checked',true);
+//    }
+//    
+//    //keyword value
+//    var keywordArray = dbResult.Tags.split(', ');
+//    $('.keywordList').empty();
+//    for(var i=0; i<keywordArray.length; i++) {
+//      addKeywordRemoveKeywordDialog(keywordArray[i]);
+//    }
+//    
+//    var assigneeArray = [];
+//    $("ul.assigneeList li").each(function() {
+//      var leadIndex = $(this).text().indexOf('(Lead)');
+//      if(leadIndex > 0) {
+//        var newStr = $(this).text().split('(Lead)')[0];
+//        assigneeArray.push($.trim(newStr));
+//      } else {
+//        assigneeArray.push( $.trim($(this).text()) );
+//      }
+//    });
+//    var ownerArray = [];
+//    $("ul.ownerList li").each(function() {
+//      var leadIndex = $(this).text().indexOf('(Lead)');
+//      if(leadIndex > 0) {
+//        var newStr = $(this).text().split('(Lead)')[0];
+//        ownerArray.push($.trim(newStr));
+//      } else {
+//        ownerArray.push( $.trim($(this).text()) );
+//      }
+//    });
+//    
+//    
+//    var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+//    var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+//    var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+//    var dueDateCheck = checkForBlankFields($( "#dueDate" ), "Due Date", $( "#dueDateTips" ));
+//    var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+//    var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+//    var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+//    var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+//    var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));
+//    
+//    $( '.loader').remove();
+//}
+
+//get file values for saving purposes
+  function getFilesForSaving() {
+    var fileArray = [];
+    $( "#documentUploadList ol li a").each(function() {
+      var urlNameObj = {};
+      var url = $(this).attr('href');
+      var name = $(this).html();
+      urlNameObj.name = name;
+      urlNameObj.url = url;
+      fileArray.push(urlNameObj);
+    });
+    return fileArray;
+  }
+
+$("button").removeClass("ui-widget");
+});
+</script>

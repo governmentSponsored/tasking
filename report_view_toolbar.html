@@ -1,0 +1,64 @@
+<div id="reports_view_toolbar">
+  <!-- template menu stuff - ONLY VISIBLE ON CREATE FORM -->
+  <div id="template_options_button_container" style="text-align: left; padding: 5px 0px 0px 0px;">
+    <span>
+      <button id="template_menu_btn">Template Options</button>
+    </span>
+    <ul id="template_menu" style="position:absolute; z-index:70; text-align: left; padding: 10px 40px 10px 20px;">
+      <li><a href="#"><span class="ui-icon ui-icon-transferthick-e-w"></span>Create a Task Using a Template</a></li>
+      <li><a href="#"><span class="ui-icon ui-icon-circle-plus"></span>Create a Task Template</a></li>
+      <li><a href="#"><span class="ui-icon ui-icon-pencil"></span>Edit a Task Template</a></li>    
+    </ul>
+  </div>
+  <!-- End template stuff -->
+  <!-- View controls for queues -->
+  <div id="view_controls_panel" style="width: 375px; float: left; padding: 5px 0px 0px 0px; text-align: left;" class="hide">
+    <span style="font-weight: bold; font-size: 90%;">Viewing: </span>
+    <select id="my_queue_view_selection" style="font-size: 90%;">
+      <option value="all">All Tasks</option>
+      <option value="overdue">Overdue Tasks</option>
+      <option value="not_started">Not Started Tasks</option>
+      <option value="started">Started Tasks</option>
+      <option value="complete">Complete Tasks</option>
+      <option value="archived">Archived Tasks</option>
+    </select>
+    &nbsp;&nbsp;
+    <input type="checkbox" id="include_archived_checkbox" />
+    <span style="font-weight: bold; font-size: 90%;">Include Archived Tasks</span>
+  </div>
+  <!-- End view controls -->
+  <div style="height: 30px; width: auto; float: right; text-align: right;" class="hide">
+    <span id="bottom_tips" style="margin-right:25px;"></span>
+    <!-- filters -->
+    <span id="my_tasks_filter_component"><input style="width: 190px;" id="my_tasks_filter" type="search" placeholder="Find in 'My Tasks'" /></span>
+    <span id="my_assignments_filter_component"><input style="width: 190px;" id="my_assignments_filter"  type="search" placeholder="Find in 'My Assignments'"  /></span>
+    <!-- edit stuff -->
+    <span>
+      <button id="edit_menu_btn">Edit</button>
+    </span>
+    <ul id="edit_menu" style="position:absolute; z-index:70; text-align: left; padding: 10px 40px 10px 20px;">
+      <li><a href="#"><span class="ui-icon ui-icon-trash"></span>Delete</a></li>
+      <li><a href="#"><span class="ui-icon ui-icon-calculator"></span>Archive All My Completed Tasks</a></li>
+      <li class="ui-state-disabled"><a href="#"><span class="ui-icon ui-icon-calculator"></span>Archive Select Completed Tasks</a></li>
+      <li class="ui-state-disabled"><a href="#"><span class="ui-icon ui-icon-copy"></span>Copy Selected Tasks</a></li>
+    </ul>
+  
+    <!-- export stuff -->
+    <span>
+      <button id="export_menu_btn">Export</button>
+    </span>
+    <ul id="export_menu" style="position:absolute; z-index:70; text-align: left; padding: 10px 40px 10px 20px;">
+      <li><a href="#">All Tasks that I Own</a></li>
+      <li class="ui-state-disabled"><a href="#">Selected Tasks that I Own/Created</a></li>
+      <li><a href="#">All Tasks Assigned to Me</a></li>
+      <li class="ui-state-disabled"><a href="#">Selected Tasks Assigned to Me</a></li>
+      <li><a href="#">Export All Search Results</a></li>
+      <li class="ui-state-disabled"><a href="#">Export Select Tasks</a></li>    
+    </ul>  
+    <span>
+      <button type="button" id="refresh_my_tasks">Refresh List</button>
+      <button type="button" id="refresh_my_assigned">Refresh List</button>
+    </span>
+  </div>
+  <br clear="all" class="hide" />
+</div>
