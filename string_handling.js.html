@@ -1,0 +1,26 @@
+<script>
+function normalizeBIAUsernameAbbrevFirstName(username) {
+  var atSignIndex = username.indexOf("@");
+  var usernameSubstring = username.substring(0, atSignIndex);
+  var indexOfDot = -1;
+  var firstName = "";
+  var lastName = "";
+  var normalizedAbbrevName = "";
+  
+  if(usernameSubstring.indexOf(".") !== -1){
+    indexOfDot = usernameSubstring.indexOf(".");
+  } else if(usernameSubstring.indexOf("_") !== -1){
+    indexOfDot = usernameSubstring.indexOf("_");
+  }
+  
+  firstName = usernameSubstring.substring(0, indexOfDot);
+  lastName = usernameSubstring.substring(indexOfDot+1);
+  
+  firstName = firstName[0].toUpperCase() + ".";
+  lastName = lastName[0].toUpperCase() + lastName.substring(1);
+  
+  normalizedAbbrevName = firstName + " " + lastName;
+  
+  return normalizedAbbrevName;
+}
+</script>

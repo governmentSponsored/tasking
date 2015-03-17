@@ -1,0 +1,1091 @@
+<script>
+$(function() {
+  $( "#urlInput" ).click(function(){
+    $( "#attachments_as_urls" ).show( "slide" );
+    $( "#attachments_as_uploads" ).hide( "slide" );
+  });
+  $( "#uploadInput" ).click(function(){
+    $( "#attachments_as_uploads" ).removeClass( "hide" );
+    //$( "#attachment_upload_btn" ).removeClass( "hide" );
+    $( "#attachments_as_urls" ).hide( "slide" );
+    $( "#attachments_as_uploads" ).show( "slide" );
+  });
+  
+  $( "#go_create_form" ).click(function(){
+    //hide   
+    $( "#report_view_container" ).hide( "slide" );
+    $( "#my_assigned_tasks_container" ).hide( "slide" );
+    $( "#search_results_container" ).hide( "slide" );
+    
+    //show
+    $( "#create_task_form_container" ).show( "slide" );
+    $( "#template_options_button_container" ).show().siblings().hide();
+    
+    //add class
+    $( "#go_create_form" ).addClass( "ui-corner-top top_nav_selected" );
+    
+    //remove class 
+    $( "#create_task_form_container" ).removeClass( "hide" );    
+    $( "#go_my_tasks" ).removeClass( "ui-corner-top top_nav_selected" );
+    $( "#go_my_assigned" ).removeClass( "ui-corner-top top_nav_selected" );
+    $( "#go_search_results" ).removeClass( "ui-corner-top top_nav_selected" );
+  });
+  
+  $( "#go_my_tasks" ).click(function(){
+    if($( "#my_assigned_tasks_container" ).is(':visible') && $( "#search_results_container" ).is(':hidden')){
+      $( "#my_queue_view_selection" )
+        .data("queueViewSelection", {assigned: $( "#my_queue_view_selection" ).val(), owned: $( "#my_queue_view_selection" ).data("queueViewSelection").owned, search: $( "#my_queue_view_selection" ).data("queueViewSelection").search})
+        .val($( "#my_queue_view_selection" ).data("queueViewSelection").owned);
+      $( '#include_archived_checkbox' )
+        .data("archCheckboxOnOff", {assigned: $( '#include_archived_checkbox' ).prop('checked'), owned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").owned, search: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").search})
+        .prop('checked', $( '#include_archived_checkbox' ).data("archCheckboxOnOff").owned);
+    } else if($( "#my_assigned_tasks_container" ).is(':hidden') && $( "#search_results_container" ).is(':visible')) {
+      $( "#my_queue_view_selection" )
+        .data("queueViewSelection", {search: $( "#my_queue_view_selection" ).val(), owned: $( "#my_queue_view_selection" ).data("queueViewSelection").owned, assigned: $( "#my_queue_view_selection" ).data("queueViewSelection").assigned})
+        .val($( "#my_queue_view_selection" ).data("queueViewSelection").owned);
+      $( '#include_archived_checkbox' )
+        .data("archCheckboxOnOff", {search: $( "#my_queue_view_selection" ).val(), owned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").owned, assigned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").assigned})
+        .prop('checked', $( '#include_archived_checkbox' ).data("archCheckboxOnOff").owned);
+    }
+    //hide
+      //containers
+    $( "#create_task_form_container" ).hide( "slide" );
+    $( "#my_assigned_tasks_container" ).hide( "slide" );   
+    $( "#search_results_container" ).hide( "slide" );
+    $( "#template_options_button_container" ).hide().siblings().show();
+    
+    //show
+      //containers
+    $( "#report_view_container" ).show( "slide" );
+      //components
+    setupMyTasksMenu("mycreated");
+    
+    //add class
+    $( "#go_my_tasks" ).addClass( "ui-corner-top top_nav_selected" );
+    
+    //remove class
+    $( "#report_view_container" ).removeClass( "hide" );
+    $( "#go_create_form" ).removeClass( "ui-corner-top top_nav_selected" );
+    $( "#go_my_assigned" ).removeClass( "ui-corner-top top_nav_selected" );
+    $( "#go_search_results" ).removeClass( "ui-corner-top top_nav_selected" );
+    
+    //update data
+    $( "#my_queue_view_selection" ).data("reportTab", "mycreated");
+    $( "#bottom_tips" ).html('');
+  });
+  
+  $( "#go_my_assigned" ).click(function(){
+    if($( "#report_view_container" ).is(':visible') && $( "#search_results_container" ).is(':hidden')){
+      $( "#my_queue_view_selection" )
+        .data("queueViewSelection", {owned: $( "#my_queue_view_selection" ).val(), assigned: $( "#my_queue_view_selection" ).data("queueViewSelection").assigned, search: $( "#my_queue_view_selection" ).data("queueViewSelection").search})
+        .val($( "#my_queue_view_selection" ).data("queueViewSelection").assigned);
+      $( '#include_archived_checkbox' )
+        .data("archCheckboxOnOff", {owned: $( '#include_archived_checkbox' ).prop('checked'), assigned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").assigned, search: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").search})
+        .prop('checked', $( '#include_archived_checkbox' ).data("archCheckboxOnOff").assigned);      
+    } else if($( "#report_view_container" ).is(':hidden') && $( "#search_results_container" ).is(':visible')) {
+      $( "#my_queue_view_selection" )
+        .data("queueViewSelection", {search: $( "#my_queue_view_selection" ).val(), owned: $( "#my_queue_view_selection" ).data("queueViewSelection").owned, assigned: $( "#my_queue_view_selection" ).data("queueViewSelection").assigned})
+        .val($( "#my_queue_view_selection" ).data("queueViewSelection").assigned);
+      $( '#include_archived_checkbox' )
+        .data("archCheckboxOnOff", {search: $( "#my_queue_view_selection" ).val(), owned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").owned, assigned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").assigned})
+        .prop('checked', $( '#include_archived_checkbox' ).data("archCheckboxOnOff").assigned); 
+    }
+    //hide
+      //containers
+    $( "#create_task_form_container" ).hide( "slide" );
+    $( "#report_view_container" ).hide( "slide" );
+    $( "#search_results_container" ).hide( "slide" );
+    $( "#template_options_button_container" ).hide().siblings().show();
+      //components
+    setupMyTasksMenu("myassigned");
+    
+    //show
+      //containers
+    $( "#my_assigned_tasks_container" ).show( "slide" );    
+    
+    //add class
+    $( "#go_my_assigned" ).addClass( "ui-corner-top top_nav_selected" );
+    
+    //remove class
+    $( "#my_assigned_tasks_container" ).removeClass( "hide" );
+    $( "#go_create_form" ).removeClass( "ui-corner-top top_nav_selected" );
+    $( "#go_my_tasks" ).removeClass( "ui-corner-top top_nav_selected" );
+    $( "#go_search_results" ).removeClass( "ui-corner-top top_nav_selected" );
+    
+    //update data
+    $( "#my_queue_view_selection" ).data("reportTab", "myassigned");
+    $( "#bottom_tips" ).html('');    
+  });
+  $( "#go_search_results" ).click(function(){
+    if($( "#my_assigned_tasks_container" ).is(':visible') && $( "#report_view_container" ).is(':hidden')){
+      $( "#my_queue_view_selection" )
+        .data("queueViewSelection", {assigned: $( "#my_queue_view_selection" ).val(), owned: $( "#my_queue_view_selection" ).data("queueViewSelection").owned, search: $( "#my_queue_view_selection" ).data("queueViewSelection").search})
+        .val($( "#my_queue_view_selection" ).data("queueViewSelection").search);
+      $( '#include_archived_checkbox' )
+        .data("archCheckboxOnOff", {assigned: $( '#include_archived_checkbox' ).prop('checked'), owned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").owned, search: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").search})
+        .prop('checked', $( '#include_archived_checkbox' ).data("archCheckboxOnOff").search);
+    } else if($( "#my_assigned_tasks_container" ).is(':hidden') && $( "#report_view_container" ).is(':visible')) {
+      $( "#my_queue_view_selection" )
+        .data("queueViewSelection", {search: $( "#my_queue_view_selection" ).data("queueViewSelection").search, owned: $( "#my_queue_view_selection" ).val(), assigned: $( "#my_queue_view_selection" ).data("queueViewSelection").assigned})
+        .val($( "#my_queue_view_selection" ).data("queueViewSelection").search);
+      $( '#include_archived_checkbox' )
+        .data("archCheckboxOnOff", {search: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").search, owned: $( "#my_queue_view_selection" ).val(), assigned: $( '#include_archived_checkbox' ).data("archCheckboxOnOff").assigned})
+        .prop('checked', $( '#include_archived_checkbox' ).data("archCheckboxOnOff").search);
+    } else {
+      $( "#my_queue_view_selection" ).val("all");
+      $( '#include_archived_checkbox' ).prop('checked', true);
+    }
+    
+      var searchBox = $( "#searchBox" );
+      //if(searchBox.val().length > 0) {
+        //hide   
+        $( "#report_view_container" ).hide( "slide" );
+        $( "#my_assigned_tasks_container" ).hide( "slide" );
+        $( "#create_task_form_container" ).hide( "slide" );
+        $( "#template_options_button_container" ).hide().siblings().show();
+        
+        //show
+        $( "#search_results_container" ).show( "slide" );
+        setupMyTasksMenu("search");
+        
+        //add class
+        $( "#go_search_results" ).addClass( "ui-corner-top top_nav_selected" );
+        
+        //remove class 
+        $( "#search_results_container" ).removeClass( "hide" );    
+        $( "#go_my_tasks" ).removeClass( "ui-corner-top top_nav_selected" );
+        $( "#go_my_assigned" ).removeClass( "ui-corner-top top_nav_selected" );
+        $( "#go_create_form" ).removeClass( "ui-corner-top top_nav_selected" );
+        
+        $( "#my_queue_view_selection" ).data("reportTab", "search");
+      //}
+    });
+    $( "#searchBox" ).bind('keypress', function(e) {
+      if(e.keyCode==13) { //Enter keycode
+        $( "#report_view_container" ).hide( "slide" );
+        $( "#my_assigned_tasks_container" ).hide( "slide" );
+        $( "#reports_view_toolbar_container" ).hide( "slide" );
+        $( "#create_task_form_container" ).hide( "slide" );
+        
+        //show
+        $( "#reports_view_toolbar_container" ).show( "slide" );
+        $( "#search_results_container" ).show( "slide" );
+        setupMyTasksMenu("search");
+        
+        //add class
+        $( "#go_search_results" ).addClass( "ui-corner-top top_nav_selected" );
+        
+        //remove class 
+        $( "#search_results_container" ).removeClass( "hide" );    
+        $( "#go_my_tasks" ).removeClass( "ui-corner-top top_nav_selected" );
+        $( "#go_my_assigned" ).removeClass( "ui-corner-top top_nav_selected" );
+        $( "#go_create_form" ).removeClass( "ui-corner-top top_nav_selected" );
+      }
+    });
+    
+//******** Toolbar buttons *******************//
+//edit stuff
+$( "#edit_menu_btn" ).button({ icons: { primary: "ui-icon-pencil", secondary: "ui-icon-triangle-1-s" } }).click(function() {
+  var menu = $( this ).parent().next().show().position({
+    my: "left top",
+    at: "left bottom",
+    of: this
+  });
+  
+  $( document ).one( "click", function() {
+    menu.hide();
+  });
+  
+  return false;
+}).parent().next()
+  .hide()
+  .menu({select: function(event, ui) {
+          var queue_editing_from = $( "#my_queue_view_selection" ).data("reportTab"); //Use this to see what tab is being viewed
+          var batch_array = new Array();
+          var rowId_array = new Array();
+          var taskNameSingle = "";
+          
+          if(queue_editing_from==="mycreated"){ 
+            var check_group_selected = $('[name=own_create_rowid]:checked:visible');
+            var tableObj = $( "#data_table tbody" );
+          } else if(queue_editing_from==="myassigned") { 
+            var check_group_selected = $('[name=assigned_rowid]:checked:visible');
+            var tableObj = $( "#my_assigned_data_table tbody" );
+          }
+  
+          check_group_selected.each(function(i){
+            if(i===0){ 
+              taskNameSingle = $(this).parent().closest('tr').find(".more_info_link").data("moreinfo").taskname; 
+            }
+            batch_array.push($(this).parent().closest('tr').find(".more_info_link").data("moreinfo").taskId);
+            rowId_array.push($(this).parent().closest('tr').index());
+          });
+  
+          if(ui.item.index()==0 && ui.item.text().indexOf("Delete") !== -1){ //Delete
+            var msgHtml="";
+            if(batch_array.length===1){
+              msgHtml = '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>This task will be permanently deleted. Are you sure?';
+            } else {
+              msgHtml = '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>These ' + batch_array.length + ' tasks will be permanently deleted. Are you sure?';
+            }
+            $( "#delete-are-you-sure-dialog" ).find("p").html(msgHtml);
+            $( "#delete-are-you-sure-dialog" ).data("deldialogdata", {batcharray: batch_array, rowidarray: rowId_array}).dialog("open");
+          } else if(ui.item.index()==1 && ui.item.text().indexOf("Archive All My Completed Tasks") !== -1){     // All my tasks      
+            var msgHtml= '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>All of your completed tasks will be archived and no longer visible in anyone\'s queues, including your own. Are you sure?';
+            
+            $( "#archive-are-you-sure-dialog" ).find("p").html(msgHtml);
+            //$( "#archive-are-you-sure-dialog" ).data("callingaction", "archiveall");
+            $( "#archive-are-you-sure-dialog" ).data("archdialogdata", {batcharray: batch_array, rowidarray: rowId_array, callingaction: "archiveall"}).dialog("open");
+          } else if(ui.item.index()==2 && (ui.item.text().indexOf("Archive") !== -1 && ui.item.text().indexOf("Completed Task") !== -1)){ //Selected Tasks that I Own 
+            var msgHtml="";
+            if(batch_array.length===1){
+              msgHtml = '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>This task will be archived and no longer visible in anyone\'s queues, including your own. Are you sure?';
+            } else {
+              msgHtml = '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>These ' + batch_array.length + ' tasks will be archived and no longer visible in anyone\'s queues, including your own. Are you sure?';
+            }
+            $( "#archive-are-you-sure-dialog" ).find("p").html(msgHtml);
+            //$( "#archive-are-you-sure-dialog" ).data("callingaction", "archiveselected");
+            $( "#archive-are-you-sure-dialog" ).data("archdialogdata", {batcharray: batch_array, rowidarray: rowId_array, callingaction: "archiveselected"}).dialog("open");
+          } else if(ui.item.index()==3 && ui.item.text().indexOf("Copy") !== -1){ //Copy Selected Tasks 
+            var msgHtml="";
+            if(batch_array.length===1){
+              msgHtml = '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>The selected task will be copied and added to your My Tasks queue. Are you sure?';
+              $( '#copied-name' ).show();
+              $( '#copy-new-name' ).val("Copy of " + taskNameSingle);
+            } else {
+              msgHtml = '<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>These ' + batch_array.length + ' tasks will be copied and added to your My Tasks queue. Are you sure?';
+              $( '#copied-name' ).hide();
+              $( '#copy-new-name' ).val("many");
+            }
+            $( "#copy-are-you-sure-dialog" ).find("p").html(msgHtml);
+            //$( "#archive-are-you-sure-dialog" ).data("callingaction", "archiveselected");
+            $( "#copy-are-you-sure-dialog" ).data("copydialogdata", {batcharray: batch_array, rowidarray: rowId_array, callingaction: "copyselected"}).dialog("open");
+          } 
+        }
+});
+
+
+
+$( "#export_menu_btn" ).button({ icons: { primary: "ui-icon-extlink", secondary: "ui-icon-triangle-1-s" } }).click(function() {
+  var menu = $( this ).parent().next().show().position({
+    my: "left top",
+    at: "left bottom",
+    of: this
+  });
+  
+  $( document ).one( "click", function() {
+    menu.hide();
+  });
+  
+  return false;
+}).parent().next()
+  .hide()
+  .menu({select: function(event, ui) {
+          var queue_exporting_from = $( "#my_queue_view_selection" ).data("reportTab"); //Use this to see what tab is being viewed
+          var batch_array = new Array();
+          
+          if(queue_exporting_from==="mycreated"){ 
+            var check_group_selected = $('[name=own_create_rowid]:checked:visible');
+          } else if(queue_exporting_from==="myassigned") { 
+            var check_group_selected = $('[name=assigned_rowid]:checked:visible');
+          } else if(queue_exporting_from==="search") { 
+            var check_group_selected = $('[name=search_rowid]:checked:visible');
+          } 
+  
+          check_group_selected.each(function(i){
+            batch_array.push($(this).parent().closest('tr').find(".more_info_link").data("moreinfo").taskId); 
+          });
+  
+          if(ui.item.index()==0 && ui.item.text().indexOf("All Tasks that I Own") !== -1){ //All Tasks that I Own
+            google.script.run.withSuccessHandler(returnValueOfExport).exportIntoSheet("mycreated","","spreadsheet");
+            updateTopTips("Creating...");
+          } else if(ui.item.index()==1 && (ui.item.text().indexOf("Export") !== -1 && ui.item.text().indexOf("Selected Task") !== -1)){ //Selected Tasks that I Own     Export Selected Task that I Own  Export (2) Selected Tasks that I Own       
+            google.script.run.withSuccessHandler(exportOneTaskSuccess).exportIntoSheet("mycreated", batch_array,"spreadsheet");
+            updateTopTips("Creating...");
+          } else if(ui.item.index()==2 && ui.item.text().indexOf("All Tasks Assigned to Me") !== -1){ //All Tasks Assigned to Me
+            google.script.run.withSuccessHandler(returnValueOfExportMyAssigned).exportIntoSheet("myassigned","","spreadsheet");
+            updateTopTips("Creating...");
+          } else if(ui.item.index()==3 && (ui.item.text().indexOf("Export") !== -1 && ui.item.text().indexOf("Assigned to Me") !== -1)){ //Export Selected Tasks Assigned to Me   Export Selected Task Assigned to Me
+            google.script.run.withSuccessHandler(exportOneTaskSuccess).exportIntoSheet("myassigned", batch_array,"spreadsheet");
+            updateTopTips("Creating...");
+          } else if(ui.item.index()==4 && ui.item.text().indexOf("Export All Search Results") !== -1){ //<-- All tasks owned/or created for search  
+            var allSearchTerms = $('[name=search_rowid]');
+            allSearchTerms.each(function(i){
+              batch_array.push($(this).parent().closest('tr').find(".more_info_link").data("moreinfo").taskId); 
+            });
+            google.script.run.withSuccessHandler(returnValueOfExportSearchResults).exportIntoSheet("search",batch_array,"spreadsheet");
+            updateTopTips("Creating...");
+          } else if(ui.item.index()==5 && (ui.item.text().indexOf("Export") !== -1 && ui.item.text().indexOf("Selected Task") !== -1)){ //<-- Selected tasks owned/or created for search  Export Selected Task  Export (2) Selected Tasks
+            //alert('Ive been clicked!');
+            google.script.run.withSuccessHandler(exportOneTaskSuccess).exportIntoSheet("search", batch_array,"spreadsheet");
+            updateTopTips("Creating...");
+          }
+        }
+});
+
+
+//Template stuff
+$( "#template_menu_btn" ).button({ icons: { secondary: "ui-icon-triangle-1-s" } }).click(function() {
+  var menu = $( this ).parent().next().show().position({
+    my: "left top",
+    at: "left bottom",
+    of: this
+  });
+  
+  $( document ).one( "click", function() {
+    menu.hide();
+  });
+  
+  return false;
+}).parent().next()
+  .hide()
+  .menu({select: function(event, ui) {
+          var title = ui.item.text();
+//Create Task From Template  
+          if(ui.item.index()==0 && ui.item.text().indexOf("Using") !== -1){             
+            openTemplateChooserDialog(title);
+// Create a Task Template 
+          } else if(ui.item.index()==1 && ui.item.text().indexOf("Create a Task Template") !== -1){    
+            $( "#taskForm" ).dialog({
+              autoOpen: false,
+              resizable: false,
+              height:675,
+              width:900,
+              modal: false,
+              title: title,
+              dialogClass: "create-template-dialog-class",
+              open: function( event, ui ) {
+                $( document ).tooltip( "destroy" );
+                if(title==="Create a Task Template"){
+                  $("input, textarea").removeAttr("disabled", "disabled").removeClass( "ui-state-default ui-state-error" );
+                  $("#checkboxes, #priorityPickList").removeClass( "ui-state-default ui-state-error" );
+                  $( "#saveUserAction" ).addClass( "ui-state-default");
+                  $("[id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+                  $('#taskForm')[0].reset();
+                  $(".keywordListItem").remove();
+                  $(".assigneeListItem").remove();
+                  $(".ownerListItem").remove();
+                  $("#documentUploadList").empty();
+                  $("#doc-manager-dialog-create-form ol").empty();
+                }
+              },
+            beforeClose: function() {
+              $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+              $( this ).dialog('destroy');
+              $('#taskForm')[0].reset();
+              $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+              $("#documentUploadList").empty();
+              $("#doc-manager-dialog-create-form ol").empty();
+              $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+              $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+              $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+            },
+          buttons: {
+            "OK": function() {
+            var successCounter = 0;
+            //get files for saving and sharing
+            var allFiles = getFilesForSaving();
+            var newStakeholders = $( "#stakeholders" ).val();
+            var newRequestingOffice = $( "#requestingOffice" ).val();
+            var newCategories = getCheckBoxData();
+            var newActivityLog = $( "#lastAction" ).val();
+            if($( "#activityDate" ).val() == '') {
+              var newActivityDate = 'No Date';
+            } else {
+              newActivityDate = $( "#activityDate" ).val();
+            }
+            var keywordArray = new Array();
+            $(".keywordListItem").each(function() {
+              keywordArray.push( $(this).text() );
+            });
+            var keywords = keywordArray.join(', ');
+          
+            var assigneeArray = new Array();
+            $("ul.assigneeList li").each(function() {
+              var leadIndex = $(this).text().indexOf('(Lead)');
+              if(leadIndex > 0) {
+                var newStr = $(this).text().split('(Lead)')[0];
+                assigneeArray.push($.trim(newStr));
+              } else {
+                assigneeArray.push( $.trim($(this).text()) );
+              }
+            });
+            var ownerArray = new Array();
+            $("ul.ownerList li").each(function() {
+              var leadIndex = $(this).text().indexOf('(Lead)');
+              if(leadIndex > 0) {
+                var newStr = $(this).text().split('(Lead)')[0];
+                ownerArray.push($.trim(newStr));
+              } else {
+                ownerArray.push( $.trim($(this).text()) );
+              }
+            });
+          
+            var categoryArray = new Array();
+            $('input[name="category"]:checked').each(function() {
+              categoryArray.push($(this).val());
+            });
+          
+            var shareTemplate = false;
+            if($( '#privateTemplateRadio' ).prop('checked')){
+              shareTemplate = false;
+            } else {
+              shareTemplate = true;
+            }
+          
+            //validation
+            var templateNameCheck = checkForBlankFields($( "#templateName" ), "Template Name", $( "#templateNameTips" ));
+            var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+            var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+            var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+            var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+            var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+            var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+            var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+            var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));    
+            
+            if(templateNameCheck !== true) { successCounter++; updateTips( templateNameCheck, $( "#templateNameTips" ));} else { updateTips( " ", $( "#templateNameTips" )); }
+            if(taskNameCheck !== true) { successCounter++; updateTips( taskNameCheck, $( "#taskNameTips" ));} else { updateTips( " ", $( "#taskNameTips" )); }
+            if(priorityCheck !== true) { successCounter++; updateTips( priorityCheck, $( "#priorityPickListTips" ));} else { updateTips( " ", $( "#priorityPickListTips" )); }
+            if(requestingOfficeCheck !== true) { successCounter++; updateTips( requestingOfficeCheck, $( "#requestingOfficeTips" ));} else { updateTips( " ", $( "#requestingOfficeTips" )); }
+            if(stakeholdersCheck !== true) { successCounter++; updateTips( stakeholdersCheck, $( "#stakeholdersTips" ));} else { updateTips( " ", $( "#stakeholdersTips" )); }
+            if(keywordsCheck !== true) { successCounter++; updateTips( keywordsCheck, $( "#tagsTips" ));} else { updateTips( " ", $( "#tagsTips" )); }
+            if(ownerEmailCheck !== true) { successCounter++; updateTips( ownerEmailCheck, $( "#taskOwnerTips" ));} else { updateTips( " ", $( "#taskOwnerTips" )); }
+            if(assigneeEmailCheck !== true) { successCounter++; updateTips( assigneeEmailCheck, $( "#assignTaskToTips" )); } else { updateTips( " ", $( "#assignTaskToTips" )); }
+            if(categoryCheck !== true) { successCounter++; updateTips( categoryCheck, $( "#categoryTips" ));} else { updateTips( " ", $( "#categoryTips" )); }
+            
+            if(successCounter === 0) {
+              updateTopTips("Saving...");
+              if(title==="Create a Task Template"){
+                google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+                  .createNewTemplate($( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+                                   keywords, $( "#taskDescription" ).val(), allFiles);
+              } else if(title==="Edit a Task Template"){
+                google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+                  .updateEditedTemplate(templateId, $( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+                                   keywords, $( "#taskDescription" ).val(), allFiles);
+              }
+              $( this ).dialog( "close" );
+            } else {
+              updateTips( "Please fix the fields marked in red", $( "#validateTips" ) );
+            }
+          },
+        Cancel: function() {
+          $( this ).dialog( "close" );
+          }
+        }
+      });
+      $( "#taskForm" ).dialog( "open" );
+//Edit a TEmplate
+    } else if(ui.item.index()==2 && ui.item.text().indexOf("Edit") !== -1){ 
+      openTemplateChooserDialog(title);
+    } 
+  }
+});
+
+function openTemplateChooserDialog(dialogTitle){
+//Setup template pick-list
+            if(dialogTitle==="Create a Task Using a Template"){
+              google.script.run.withSuccessHandler(createTemplateSelectList).withFailureHandler(updateTopTips).
+              fetchTemplateList();
+            } else if(dialogTitle==="Edit a Task Template"){
+              google.script.run.withSuccessHandler(createOwnersTemplateSelectList).withFailureHandler(updateTopTips).
+              fetchTemplateList();
+            } 
+    
+            $( "#choose-template-dialog" ).dialog({
+              autoOpen: false,
+              resizable: false,
+              height:200,
+              width:400,
+              modal: false,
+              title: dialogTitle,
+              dialogClass: "choose-template-dialog-class",
+              open: function( event, ui ) {
+                $( document ).tooltip( "destroy" );
+              },
+              beforeClose: function() {
+                $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+                $('#taskForm')[0].reset();
+                $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+                $("#documentUploadList").empty();
+                $("#doc-manager-dialog-create-form ol").empty();
+                $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+                $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+                $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+                $( '#select_template_dropdown' ).html('');
+                $( '#select_template_dropdown' ).append('<option value="loading">Loading...</option>');
+                $( this ).dialog('destroy');
+              },
+              buttons: [
+                {
+                  text: "OK", 
+                  id: "fill-create-form-btn",
+                  click: function() {
+                    //get values
+                    $( '.loader').remove(); //Remove any existing loaders
+                    $( "#taskForm" ).after("<div class='loader'>"+
+                                             "  <div class='loading-img-txt-box'>"+
+                                             "    <img style='padding-top:4px;' src='http://www.bia.gov/cs/groups/webteam/documents/site_assets/idc1-024528.gif' /> <span class='loading-text'>Loading...</span>"+
+                                             "  </div>"+
+                                             "</div>");
+                    google.script.run.withSuccessHandler(setCreateFormFromTemplateData).withFailureHandler(updateTopTips).
+                    getTemplateData($( '#select_template_dropdown' ).val());
+                    $( this ).dialog( "close" );
+                  }
+                },
+                {
+                  text: "OK", 
+                  id: "fill-edit-template-form-btn",
+                  click: function() {
+                    //get values
+                    $( '.loader').remove(); //Remove any existing loaders
+                    $( "#taskForm" ).after("<div class='loader'>"+
+                                             "  <div class='loading-img-txt-box'>"+
+                                             "    <img style='padding-top:4px;' src='http://www.bia.gov/cs/groups/webteam/documents/site_assets/idc1-024528.gif' /> <span class='loading-text'>Loading...</span>"+
+                                             "  </div>"+
+                                             "</div>");
+                    var idToUpdate = $( '#select_template_dropdown' ).val();
+                    google.script.run.withSuccessHandler(setCreateFormFromTemplateData).withFailureHandler(updateTopTips).
+                    getTemplateData(idToUpdate);
+                    $( this ).dialog( "close" );
+               
+                    createOrUpdateTemplate("Edit a Task Template", idToUpdate);
+                  }
+                },
+                {
+                  text: "Cancel",
+                  id: "user-manager-cancel-btn",
+                  click: function() {
+                    $( '#add_user_popup' ).val('');
+                    $( this ).dialog( "close" );
+                  }
+                }
+             ]
+           });
+            if(dialogTitle==="Create a Task Using a Template"){
+              $( '#fill-create-form-btn' ).show();
+              $( '#fill-edit-template-form-btn' ).hide();
+            } else if(dialogTitle==="Edit a Task Template"){
+              $( '#fill-create-form-btn' ).hide();
+              $( '#fill-edit-template-form-btn' ).show();
+            } 
+            $( "#choose-template-dialog" ).dialog( "open" );
+}
+
+function createOrUpdateTemplate(title, templateId){
+    $( "#taskForm" ).dialog({
+      autoOpen: false,
+      resizable: false,
+      height:675,
+      width:900,
+      modal: false,
+      title: title,
+      dialogClass: "create-template-dialog-class",
+      open: function() {
+        $( document ).tooltip( "destroy" );
+      },
+      beforeClose: function() {
+        $( this ).dialog('destroy');
+        $('#taskForm')[0].reset();
+        $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+        $("#documentUploadList").empty();
+        $("#doc-manager-dialog-create-form ol").empty();
+        $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+        $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+      },
+      buttons: {
+      "OK": function() {
+          var successCounter = 0;
+          //get files for saving and sharing
+          var allFiles = getFilesForSaving();
+          var newStakeholders = $( "#stakeholders" ).val();
+          var newRequestingOffice = $( "#requestingOffice" ).val();
+          var newCategories = getCheckBoxData();
+          var newActivityLog = $( "#lastAction" ).val();
+          if($( "#activityDate" ).val() == '') {
+            var newActivityDate = 'No Date';
+          } else {
+            newActivityDate = $( "#activityDate" ).val();
+          }
+          var keywordArray = new Array();
+          $(".keywordListItem").each(function() {
+            keywordArray.push( $(this).text() );
+          });
+          var keywords = keywordArray.join(', ');
+          
+          var assigneeArray = new Array();
+          $("ul.assigneeList li").each(function() {
+            var leadIndex = $(this).text().indexOf('(Lead)');
+            if(leadIndex > 0) {
+              var newStr = $(this).text().split('(Lead)')[0];
+              assigneeArray.push($.trim(newStr));
+            } else {
+              assigneeArray.push( $.trim($(this).text()) );
+            }
+          });
+          var ownerArray = new Array();
+          $("ul.ownerList li").each(function() {
+            var leadIndex = $(this).text().indexOf('(Lead)');
+            if(leadIndex > 0) {
+              var newStr = $(this).text().split('(Lead)')[0];
+              ownerArray.push($.trim(newStr));
+            } else {
+              ownerArray.push( $.trim($(this).text()) );
+            }
+          });
+          
+          var categoryArray = new Array();
+          $('input[name="category"]:checked').each(function() {
+            categoryArray.push($(this).val());
+          });
+          
+          var shareTemplate = false;
+          if($( '#privateTemplateRadio' ).prop('checked')){
+            shareTemplate = false;
+          } else {
+            shareTemplate = true;
+          }
+          
+          //validation
+          var templateNameCheck = checkForBlankFields($( "#templateName" ), "Template Name", $( "#templateNameTips" ));
+          var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+          var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+          var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+          var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+          var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+          var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+          var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+          var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));   
+          
+          if(templateNameCheck !== true) { successCounter++; updateTips( templateNameCheck, $( "#templateNameTips" ));} else { updateTips( " ", $( "#templateNameTips" )); }
+          if(taskNameCheck !== true) { successCounter++; updateTips( taskNameCheck, $( "#taskNameTips" ));} else { updateTips( " ", $( "#taskNameTips" )); }
+          if(priorityCheck !== true) { successCounter++; updateTips( priorityCheck, $( "#priorityPickListTips" ));} else { updateTips( " ", $( "#priorityPickListTips" )); }
+          if(requestingOfficeCheck !== true) { successCounter++; updateTips( requestingOfficeCheck, $( "#requestingOfficeTips" ));} else { updateTips( " ", $( "#requestingOfficeTips" )); }
+          if(stakeholdersCheck !== true) { successCounter++; updateTips( stakeholdersCheck, $( "#stakeholdersTips" ));} else { updateTips( " ", $( "#stakeholdersTips" )); }
+          if(keywordsCheck !== true) { successCounter++; updateTips( keywordsCheck, $( "#tagsTips" ));} else { updateTips( " ", $( "#tagsTips" )); }
+          if(ownerEmailCheck !== true) { successCounter++; updateTips( ownerEmailCheck, $( "#taskOwnerTips" ));} else { updateTips( " ", $( "#taskOwnerTips" )); }
+          if(assigneeEmailCheck !== true) { successCounter++; updateTips( assigneeEmailCheck, $( "#assignTaskToTips" )); } else { updateTips( " ", $( "#assignTaskToTips" )); }
+          if(categoryCheck !== true) { successCounter++; updateTips( categoryCheck, $( "#categoryTips" ));} else { updateTips( " ", $( "#categoryTips" )); }
+          
+          if(successCounter === 0) {
+            updateTopTips("Saving...");
+            if(title==="Create a Task Template"){
+              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+                .createNewTemplate($( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+                                   keywords, $( "#taskDescription" ).val(), allFiles);
+            } else if(title==="Edit a Task Template"){ //Editing a template
+              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+                .updateEditedTemplate(templateId, $( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+                                   keywords, $( "#taskDescription" ).val(), allFiles);
+            }
+            $( this ).dialog( "close" );
+          } else {
+            updateTips( "Please fix the fields marked in red", $( "#validateTips" ) );
+          }
+        },
+    Cancel: function() {
+        $( this ).dialog( "close" );
+        }
+      }
+    });
+    $( "#taskForm" ).dialog( "open" );
+}
+
+function createTemplateSelectList(dbResult){
+  $( '#select_template_dropdown' ).html('');
+  $( '#select_template_dropdown' ).append('<optgroup label="Your Templates">');
+  for(var i=0;i<dbResult.templateLists.user_created.length;i++){
+    $( '#select_template_dropdown' ).find('optgroup').eq(0).append('<option value="' + dbResult.templateLists.user_created[i].tid + '">' + dbResult.templateLists.user_created[i].tname + '</option>');
+  }//END FOR
+  $( '#select_template_dropdown' ).append('<optgroup label="Community Templates">');
+  for(var i=0;i<dbResult.templateLists.shared.length;i++){
+    $( '#select_template_dropdown' ).find('optgroup').eq(1).append('<option value="' + dbResult.templateLists.shared[i].tid + '">' + dbResult.templateLists.shared[i].tname + '</option>');
+  }//END FOR
+}
+
+function createOwnersTemplateSelectList(dbResult){
+  $( '#select_template_dropdown' ).html('');
+  $( '#select_template_dropdown' ).append('<optgroup label="Templates Created by You">');
+  for(var i=0;i<dbResult.templateLists.user_created.length;i++){
+    $( '#select_template_dropdown' ).find('optgroup').eq(0).append('<option value="' + dbResult.templateLists.user_created[i].tid + '">' + dbResult.templateLists.user_created[i].tname + '</option>');
+  }//END FOR
+}
+
+function addKeywordRemoveKeywordDialog(keyword) {
+      var currentKeywords = $('.keywordList');
+      currentKeywords.css("display", "block");
+      var newKeyword = keyword.toLowerCase();
+      $( tags ).attr("disabled", "disabled");
+      var removeKeyword = '<a href="#" style="float:right;" class="ui-icon ui-icon-closethick ui-state-default ui-corner-all removeKeyword"></a>';
+      $( currentKeywords ).append( '<li class="keywordListItem" id="keywordz"style="margin-bottom: 3px;">' + newKeyword + removeKeyword + '</li>' );
+      $( tags ).removeAttr("disabled", "disabled")
+               .val('');
+    $( ".removeKeyword" ).bind('click', function() {
+      $(this).parent().remove();
+  });
+}
+
+//$( '#create_template_dialog_btn, #fill-edit-template-form-btn' ).button().click(function(event) {
+//    var title = $(this).text();
+//    $( "#taskForm" ).dialog({
+//      autoOpen: false,
+//      resizable: false,
+//      height:675,
+//      width:900,
+//      modal: false,
+//      title: title,
+//      dialogClass: "create-template-dialog-class",
+//      open: function( event, ui ) {
+//        $( document ).tooltip( "destroy" );
+//        if(title==="Create a Task Template"){
+//          $("input, textarea").removeAttr("disabled", "disabled").removeClass( "ui-state-default" );
+//          $("#checkboxes, #priorityPickList").removeClass( "ui-state-default" );
+//          $( "#saveUserAction" ).addClass( "ui-state-default");
+//          $("[id$=Tips]").removeClass( "ui-icon ui-icon-check" );
+//          $('#taskForm')[0].reset();
+//          $(".keywordListItem").remove();
+//          $(".assigneeListItem").remove();
+//          $(".ownerListItem").remove();
+//          $("#documentUploadList").empty();
+//          $("#doc-manager-dialog-create-form ol").empty();
+//        }
+//      },
+//      beforeClose: function() {
+//        $( document ).tooltip({ show: {effect: "slide"}, position: { my: "left+15 center", at: "right center" }, hide: {effect: "slide", direction: "left"} });
+//        $( this ).dialog('destroy');
+//        $('#taskForm')[0].reset();
+//        $(".keywordListItem, .assigneeListItem, .ownerListItem").remove();
+//        $("#documentUploadList").empty();
+//        $("#doc-manager-dialog-create-form ol").empty();
+//        $("#taskForm input, textarea, select, #checkboxes").removeClass( "ui-state-default ui-state-error" );
+//        $("#checkboxes-edit").removeClass( "ui-state-default ui-state-error" );
+//        $("#taskForm [id$=Tips]").removeClass( "ui-icon ui-icon-check" ).text('');
+//      },
+//      buttons: {
+//      "OK": function() {
+//          var successCounter = 0;
+//          //get files for saving and sharing
+//          var allFiles = getFilesForSaving();
+//          var newStakeholders = $( "#stakeholders" ).val();
+//          var newRequestingOffice = $( "#requestingOffice" ).val();
+//          var newCategories = getCheckBoxData();
+//          var newActivityLog = $( "#lastAction" ).val();
+//          if($( "#activityDate" ).val() == '') {
+//            var newActivityDate = 'No Date';
+//          } else {
+//            newActivityDate = $( "#activityDate" ).val();
+//          }
+//          var keywordArray = new Array();
+//          $(".keywordListItem").each(function() {
+//            keywordArray.push( $(this).text() );
+//          });
+//          var keywords = keywordArray.join(', ');
+//          
+//          var assigneeArray = new Array();
+//          $("ul.assigneeList li").each(function() {
+//            var leadIndex = $(this).text().indexOf('(Lead)');
+//            if(leadIndex > 0) {
+//              var newStr = $(this).text().split('(Lead)')[0];
+//              assigneeArray.push($.trim(newStr));
+//            } else {
+//              assigneeArray.push( $.trim($(this).text()) );
+//            }
+//          });
+//          var ownerArray = new Array();
+//          $("ul.ownerList li").each(function() {
+//            var leadIndex = $(this).text().indexOf('(Lead)');
+//            if(leadIndex > 0) {
+//              var newStr = $(this).text().split('(Lead)')[0];
+//              ownerArray.push($.trim(newStr));
+//            } else {
+//              ownerArray.push( $.trim($(this).text()) );
+//            }
+//          });
+//          
+//          var categoryArray = new Array();
+//          $('input[name="category"]:checked').each(function() {
+//            categoryArray.push($(this).val());
+//          });
+//          
+//          var shareTemplate = false;
+//          if($( '#privateTemplateRadio' ).prop('checked')){
+//            shareTemplate = false;
+//          } else {
+//            shareTemplate = true;
+//          }
+//          
+//          //validation
+//          var templateNameCheck = checkForBlankFields($( "#templateName" ), "Template Name", $( "#templateNameTips" ));
+//          var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+//          var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+//          var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+//          var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+//          var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+//          var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+//          var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+//          var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));    
+//          
+//          if(templateNameCheck !== true) { successCounter++; updateTips( templateNameCheck, $( "#templateNameTips" ));} else { updateTips( " ", $( "#templateNameTips" )); }
+//          if(taskNameCheck !== true) { successCounter++; updateTips( taskNameCheck, $( "#taskNameTips" ));} else { updateTips( " ", $( "#taskNameTips" )); }
+//          if(priorityCheck !== true) { successCounter++; updateTips( priorityCheck, $( "#priorityPickListTips" ));} else { updateTips( " ", $( "#priorityPickListTips" )); }
+//          if(requestingOfficeCheck !== true) { successCounter++; updateTips( requestingOfficeCheck, $( "#requestingOfficeTips" ));} else { updateTips( " ", $( "#requestingOfficeTips" )); }
+//          if(stakeholdersCheck !== true) { successCounter++; updateTips( stakeholdersCheck, $( "#stakeholdersTips" ));} else { updateTips( " ", $( "#stakeholdersTips" )); }
+//          if(keywordsCheck !== true) { successCounter++; updateTips( keywordsCheck, $( "#tagsTips" ));} else { updateTips( " ", $( "#tagsTips" )); }
+//          if(ownerEmailCheck !== true) { successCounter++; updateTips( ownerEmailCheck, $( "#taskOwnerTips" ));} else { updateTips( " ", $( "#taskOwnerTips" )); }
+//          if(assigneeEmailCheck !== true) { successCounter++; updateTips( assigneeEmailCheck, $( "#assignTaskToTips" )); } else { updateTips( " ", $( "#assignTaskToTips" )); }
+//          if(categoryCheck !== true) { successCounter++; updateTips( categoryCheck, $( "#categoryTips" ));} else { updateTips( " ", $( "#categoryTips" )); }
+//          
+//          if(successCounter === 0) {
+//            updateTopTips("Saving...");
+//            if(title==="Create a Task Template"){
+//              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+//                .createNewTemplate($( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+//                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+//                                   keywords, $( "#taskDescription" ).val(), allFiles);
+//            } else if(title==="Edit a Task Template"){
+//              google.script.run.withSuccessHandler(updateTopTips).withFailureHandler(updateTopTips)
+//                .updateEditedTemplate(templateId, $( "#templateName" ).val(), shareTemplate, $( "#taskName" ).val(), $( "#dueDate" ).val(), $( "#requestingOffice" ).val(), ownerArray, assigneeArray, 
+//                                   $( "#priorityPickList" ).val(), categoryArray, $( "#lastAction" ).val(), newActivityDate, $( "#stakeholders" ).val(), 
+//                                   keywords, $( "#taskDescription" ).val(), allFiles);
+//            }
+//            $( this ).dialog( "close" );
+//          } else {
+//            updateTips( "Please fix the fields marked in red", $( "#validateTips" ) );
+//          }
+//        },
+//    Cancel: function() {
+//        $( this ).dialog( "close" );
+//        }
+//      }
+//    });
+//    $( "#taskForm" ).dialog( "open" );
+//});
+
+function setCreateFormFromTemplateData(dbResult){
+  //set values
+  $( "#taskName" ).val(dbResult.Name); 
+  $( "#taskDescription" ).val(dbResult.Description);
+  $( "#dueDate" ).val(dbResult.dueDate);
+  $( "#priorityPickList" ).val(dbResult.Priority);
+  $( "#requestingOffice" ).val(dbResult.ReqOffice);
+  $( "#stakeholders" ).val(dbResult.Stakeholder);
+  $( "#templateName" ).val(dbResult.TemplateName);
+  //Template sharing
+  //category value
+  if(dbResult.Shared==true){
+    $( "#publicTemplateRadio" ).prop('checked',true);
+    $( "#privateTemplateRadio" ).prop('checked',false);
+  } else {
+    $( "#publicTemplateRadio" ).prop('checked',false);
+    $( "#privateTemplateRadio" ).prop('checked',true); 
+  }
+  
+  //Owners
+  var currentOwners = $('.ownerList');
+  currentOwners.css("display", "block");
+  var removeOwner = '<a href="#" style="float:right;" class="ui-icon ui-icon-closethick ui-state-default ui-corner-all removeOwner"></a>';
+  for(var i=0; i<dbResult.Owner.length; i++){
+    $( currentOwners ).append( '<li class="ownerListItem" id="ownerz" style="margin-bottom: 3px;">' + dbResult.Owner[i] + removeOwner + '</li>' ); 
+  }
+  $("ul.ownerList li:first-child").append( "<span class='lead_owner'>(Lead)</span>" );
+
+ //Files
+  var itemHtml = "";
+  var attachmentsArray = [];
+		
+  for(var j = 0; j< dbResult.Files.length; j++){
+    itemHtml += "<li><a href='" + dbResult.Files[j][1] + "' target='_blank'>" + dbResult.Files[j][0] + "</a> &nbsp; "+
+            "<span class='remove_attachment' style='color:red;font-size:70%;text-decoration:underline;cursor:pointer;'>(remove)</span></li>";
+  }
+  $( '#documentUploadList' ).append(itemHtml);
+  
+  //Assignees 
+  var currentAssignees = $('.assigneeList');
+  currentAssignees.css("display", "block");
+  var removeAssignee = '<a href="#" style="float:right;" class="ui-icon ui-icon-closethick ui-state-default ui-corner-all removeAssignee"></a>';
+  for(var i=0; i<dbResult.Assignee.length; i++){
+    $( currentAssignees ).append( '<li class="assigneeListItem" id="assigneez" style="margin-bottom: 3px;">' + dbResult.Assignee[i] + removeAssignee + '</li>' );
+  }
+  $("ul.assigneeList li:first-child").append( "<span class='lead_assignee'>(Lead)</span>" );
+  
+  $( "#lastAction" ).val(dbResult.Comment[0].activity);
+  $( "activityDate" ).val(dbResult.Comment[0].date);
+    
+    //category value
+    for(var a=0; a<dbResult.Category.length; a++) {
+      $( 'input[name="category"][value=' + dbResult.Category[a] + ']' ).prop('checked',true);
+    }
+    
+    //keyword value
+    var keywordArray = dbResult.Tags.split(', ');
+    $('.keywordList').empty();
+    for(var i=0; i<keywordArray.length; i++) {
+      addKeywordRemoveKeywordDialog(keywordArray[i]);
+    }
+    
+    var assigneeArray = [];
+    $("ul.assigneeList li").each(function() {
+      var leadIndex = $(this).text().indexOf('(Lead)');
+      if(leadIndex > 0) {
+        var newStr = $(this).text().split('(Lead)')[0];
+        assigneeArray.push($.trim(newStr));
+      } else {
+        assigneeArray.push( $.trim($(this).text()) );
+      }
+    });
+    var ownerArray = [];
+    $("ul.ownerList li").each(function() {
+      var leadIndex = $(this).text().indexOf('(Lead)');
+      if(leadIndex > 0) {
+        var newStr = $(this).text().split('(Lead)')[0];
+        ownerArray.push($.trim(newStr));
+      } else {
+        ownerArray.push( $.trim($(this).text()) );
+      }
+    });
+    
+    $( ".removeKeyword, .removeAssignee, .removeOwner" ).bind('click', function() {
+      $(this).parent().remove();
+    });
+    
+    var ownerEmailCheck = checkArray($( "#taskOwner" ), "Task Owner", $( "#taskOwnerTips" ), ownerArray);
+    var assigneeEmailCheck = checkArray($( "#assignTaskTo" ), "Assignee", $( "#assignTaskToTips" ), assigneeArray);
+    var taskNameCheck = checkForBlankFields($( "#taskName" ), "Task Name", $( "#taskNameTips" ));
+    var dueDateCheck = checkForBlankFields($( "#dueDate" ), "Due Date", $( "#dueDateTips" ));
+    var priorityCheck = checkForBlankFields($( "#priorityPickList" ), "Priority", $( "#priorityPickListTips" ));
+    var requestingOfficeCheck = checkForBlankFields($( "#requestingOffice" ), "Requesting Office", $( "#requestingOfficeTips" ));
+    var stakeholdersCheck = checkForBlankFields($( "#stakeholders" ), "Stakeholders", $( "#stakeholdersTips" ));
+    var keywordsCheck = checkArray($( "#tags" ), "Keywords", $( "#tagsTips" ), keywordArray);
+    var categoryCheck = checkCheckBox($( "#checkboxes" ), "Category", $( "#categoryTips" ));
+    
+    $( '.loader').remove();
+}
+
+function setupMyTasksMenu(view){
+      var exportMenuHtml= '';
+
+      if(view==="mycreated"){
+        //filters
+        $( "#my_tasks_filter_component" ).show();
+        $( "#my_assignments_filter_component" ).hide();
+        //edit menu
+        $( "#edit_menu_btn" ).parent().show();
+        $( "#edit_menu" ).find("li").eq(1).show(); //archive stuff
+        $( "#edit_menu" ).find("li").eq(2).show(); //archive some
+        //export menu
+        $( "#export_menu" ).find("li")
+          .filter(function(index) {
+		    if(index < 2){ //0 index based
+              $(this).show();
+			  //return true;
+		    } else { 
+              $(this).hide();
+            }
+	      });       
+        $( "#refresh_my_tasks" ).show();
+        $( "#refresh_my_assigned" ).hide();
+        //sort menu
+        //$( "#sort_dir_buttonset" ).show();
+        //$( "#sort_dir_buttonset" ).next().show();
+      } else if(view==="myassigned"){
+        //filters
+        $( "#my_tasks_filter_component" ).hide();
+        $( "#my_assignments_filter_component" ).show();
+        //edit menu
+        $( "#edit_menu_btn" ).parent().hide(); //Nothing they can edit at this time (Sprint 2)
+        $( "#edit_menu" ).find("li").eq(1).hide(); //archive all
+        $( "#edit_menu" ).find("li").eq(2).hide(); //archive some
+        //export menu
+        //$( "#export_menu" ).find("li:gt(1)").show();
+        //$( "#export_menu" ).find("li:lt(2)").hide();
+        $( "#export_menu" ).find("li")
+          .filter(function(index) {
+		    if(index > 1 && index < 4){ //0 index based
+              $(this).show();
+			  //return true;
+		    } else { 
+              $(this).hide();
+            }
+	      });
+        $( "#refresh_my_assigned" ).show();
+        $( "#refresh_my_tasks" ).hide();
+        //sort menu
+        //$( "#sort_dir_buttonset" ).show();
+        //$( "#sort_dir_buttonset" ).next().show();
+      } else if(view==="search"){
+        //filters
+        $( "#my_tasks_filter_component" ).hide();
+        $( "#my_assignments_filter_component" ).hide();
+        //edit menu
+        $( "#edit_menu_btn" ).parent().hide(); //Nothing they can edit at this time (Sprint 2)
+        $( "#edit_menu" ).find("li").eq(1).hide(); //archive all
+        $( "#edit_menu" ).find("li").eq(2).hide(); //archive some
+        //export menu
+        $( "#export_menu" ).find("li")
+          .filter(function(index) {
+		    if(index > 3){ //0 index based
+              $(this).show();
+			  //return true;
+		    } else { 
+              $(this).hide();
+            }
+	      });
+        $( "#refresh_my_tasks" ).hide();
+        $( "#refresh_my_assigned" ).hide();
+        //sort menu
+        //$( "#sort_dir_buttonset" ).hide();
+        //$( "#sort_dir_buttonset" ).next().hide();
+      }
+}
+
+//*** Toolbar helper functions *****//
+function getCheckBoxData() {
+  var categoryArray = [];
+  categoryArray.length = 0;
+  $('input[name="category"]:checked').each(function() {
+    categoryArray.push($(this).val());
+  });
+  return categoryArray;
+}
+
+//get file values for saving purposes
+  function getFilesForSaving() {
+    var fileArray = [];
+    $( "#documentUploadList ol li a").each(function() {
+      var urlNameObj = {};
+      var url = $(this).attr('href');
+      var name = $(this).html();
+      urlNameObj.name = name;
+      urlNameObj.url = url;
+      fileArray.push(urlNameObj);
+    });
+    return fileArray;
+  }
+  
+   //export documents
+function returnValueOfExport(return_object_export) {
+  $('#bottom_tips').empty().append(return_object_export).effect( "highlight", {color:"#ffd76e"}, 2000 );
+  $( "#exportAllMyCreatedAndOwned" ).removeAttr("disabled", "disabled");
+  }
+
+function returnValueOfExportMyAssigned(return_object_export) {
+  $('#bottom_tips').empty().append(return_object_export).effect( "highlight", {color:"#ffd76e"}, 2000 );
+  $( "#exportAllMyAssigned" ).removeAttr("disabled", "disabled");
+  }
+  
+function returnValueOfExportSearchResults(return_object_export) {
+  $('#bottom_tips').empty().append(return_object_export).effect( "highlight", {color:"#ffd76e"}, 2000 );
+  $( "#exportAllMyAssigned" ).removeAttr("disabled", "disabled");
+  }
+
+function exportOneTaskSuccess(return_object_one_task) {
+  $('#bottom_tips').empty().append(return_object_one_task).effect( "highlight", {color:"#ffd76e"}, 2000 );
+}
+});
+</script>
