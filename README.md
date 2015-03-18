@@ -7,6 +7,7 @@ Originally this application used google's built-in NoSQL database ScriptDB, but 
 
 # Installation
 Moving scripts without tons of copy/paste into Google Drive can be relatively tricky. Please follow these instructions:
+
 1. Create an Apps Script Project on your Drive (you may need to connect Apps Script to Drive)
 2. Create an account on [Parse](https://www.parse.com/). This will be your NoSQL data store.
 3. Create an application, then a class within that application, then be sure to add at least column to it.
