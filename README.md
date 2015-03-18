@@ -9,5 +9,4 @@ Originally this application used google's built-in NoSQL database ScriptDB, but 
 Moving scripts without tons of copy/paste into Google Drive can be relatively tricky. Please follow these instructions:
 * Create an Apps Script Project on your Drive (you may need to connect Apps Script to Drive)
 * Follow [these instructions on how to connect Eclipse with Google Apps Script](http://googledevelopers.blogspot.com/2013/10/total-eclipse-of-apps-script.html)
-
-*
+* More Instructions to follow
