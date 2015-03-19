@@ -66,10 +66,14 @@ $(function() {
 	function onSuccessQuery(return_obj) {
 		var currentTask;
 		someTasksUl.empty();
-		for(var i=0; i<return_obj.length; i++) {
-			currentTask = return_obj[i];
-			someTasksUl.append($("<li><b>Name</b>: " + currentTask.Name + " <b>Requesting Office</b>: " + currentTask.ReqOffice + "</li>"));
-			console.log(currentTask.Name + ' ' + currentTask.ReqOffice);
+		if(return_obj[0] == 'No Results!') {
+			someTasksUl.append($("<li><b>" + return_obj[0] + "</b></li>"));
+		} else {
+			for(var i=0; i<return_obj.length; i++) {
+				currentTask = return_obj[i];
+				someTasksUl.append($("<li><b>Name</b>: " + currentTask.Name + " <b>Requesting Office</b>: " + currentTask.ReqOffice + "</li>"));
+				console.log(currentTask.Name + ' ' + currentTask.ReqOffice);
+			}
 		}
 		getSomeTasksButton.prop("disabled",false);
 	}

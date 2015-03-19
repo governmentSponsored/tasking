@@ -90,6 +90,10 @@ function getSpecificTasks(query) {
 		}
 	}
 	
+	if(resultArray.length === 0) {
+		resultArray.push('No Results!')
+	}
+	
 	return resultArray;
 }
 /*
