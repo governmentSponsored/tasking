@@ -3,6 +3,7 @@
 	<ul>
 		<li>Create - Check!</li>
 		<li>Read - Check!</li>
+		<li>Read Selectively - Check!</li>
 		<li>Update</li>
 		<li>Delete</li>
 	</ul>
@@ -14,10 +15,19 @@
 		<input type="text" id="requestingOffice" />
 		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
 	</form>
+	<hr />
 	<form id="parseRead">
 		<h3>Read All Tasks</h3>
 		<button class="btn" type="Submit" id="readTasks">Click for all tasks!</button>
 		<ul id="allTasks"></ul>
+	</form>
+	<hr />
+	<form id="parseReadSome">
+		<h3>Read Some Tasks</h3>
+		<label for="queryText">Search Text: </label>
+		<input type="text" id="queryText" />
+		<button class="btn" type="Submit" id="readSomeTasks">Search!</button>
+		<ul id="someTasks"></ul>
 	</form>
 </div>
 <!-- Call jQuery libraries -->
@@ -32,7 +42,10 @@ $(function() {
 	postForm = $( "#parsePost" ),
 	submitButton = $( "#postTask" ),
 	getAllTasksButton = $( "#readTasks" ),
-	taskListUl = $( "#allTasks" );
+	getSomeTasksButton = $( "#readSomeTasks" ),
+	queryText = $( "#queryText" ),
+	taskListUl = $( "#allTasks" ),
+	someTasksUl = $( "#someTasks" );
 	
 	function onSuccessCreate(return_obj) {
 		postForm[0].reset();
@@ -48,6 +61,17 @@ $(function() {
 			console.log(currentTask.Name + ' ' + currentTask.ReqOffice);
 		}
 		getAllTasksButton.prop("disabled",false);
+	}
+	
+	function onSuccessQuery(return_obj) {
+		var currentTask;
+		someTasksUl.empty();
+		for(var i=0; i<return_obj.length; i++) {
+			currentTask = return_obj[i];
+			someTasksUl.append($("<li><b>Name</b>: " + currentTask.Name + " <b>Requesting Office</b>: " + currentTask.ReqOffice + "</li>"));
+			console.log(currentTask.Name + ' ' + currentTask.ReqOffice);
+		}
+		getSomeTasksButton.prop("disabled",false);
 	}
 	
 	function onFailure(return_obj) {
@@ -66,6 +90,13 @@ $(function() {
 		google.script.run.withSuccessHandler(onSuccessRead)
 	                     .withFailureHandler(onFailure)
 	                     .getAllTasks();
+	});
+	
+	getSomeTasksButton.click(function() {
+		$(this).prop("disabled",true);
+		google.script.run.withSuccessHandler(onSuccessQuery)
+	                     .withFailureHandler(onFailure)
+	                     .getSpecificTasks(queryText.val());
 	});
 });
 

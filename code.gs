@@ -69,8 +69,27 @@ function getAllTasks() {
 	  var data = UrlFetchApp.fetch(url, options);
 	  var cleanData = JSON.parse(data).results;
 	  
-	  Logger.log(cleanData);
 	  return cleanData;
+}
+
+function getSpecificTasks(query) {
+	var allTasks = getAllTasks(),
+	length = allTasks.length,
+	i = 0,
+	currentTask,
+	currentTaskString,
+	reqOffice,
+	resultArray = [];
+	
+	for(i; i<length; i++) {
+		currentTask = allTasks[i];
+		currentTaskString = currentTask.Name + currentTask.ReqOffice;
+		if(currentTaskString.indexOf(query) > -1) {
+			resultArray.push(currentTask);
+		}
+	}
+	
+	return resultArray;
 }
 /*
 function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {
