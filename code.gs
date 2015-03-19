@@ -84,7 +84,8 @@ function getSpecificTasks(query) {
 	for(i; i<length; i++) {
 		currentTask = allTasks[i];
 		currentTaskString = currentTask.Name + currentTask.ReqOffice;
-		if(currentTaskString.indexOf(query) > -1) {
+		if(currentTaskString.toLowerCase()
+							.indexOf(query.toLowerCase()) > -1) {
 			resultArray.push(currentTask);
 		}
 	}
