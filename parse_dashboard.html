@@ -1,9 +1,41 @@
 <div>
 	<h2>Parse Dashboard - Purely for Testing Parse Functionality</h2>
 	<ul>
-		<li>Create</li>
+		<li>Create - Check!</li>
 		<li>Read</li>
 		<li>Update</li>
 		<li>Delete</li>
 	</ul>
+	<label for="taskName">Task Name: </label>
+	<input type="text" id="taskName" />
+	<label for="requestingOffice">Requesting Office: </label>
+	<input type="text" id="requestingOffice" />
+	<button class="btn" id="postTask">Upload a new task!</button>
 </div>
+<!-- Call jQuery libraries -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="//www.parsecdn.com/js/parse-1.3.5.min.js"></script>
+
+<script>
+$(function() {
+	console.log('function started');
+	var taskName = $( "#taskName" ),
+	requestingOffice = $( "#requestingOffice" );
+	function onSuccess(return_obj) {
+			console.log('success');
+			console.log(return_obj[0]);
+			console.log(return_obj[1].createdAt + ' ' + return_obj[1].objectId);
+		}
+		function onFailure(return_obj) {
+			console.log('fail');
+			console.log(return_obj.message);
+		}
+	$("#postTask").click(function() {
+		google.script.run.withSuccessHandler(onSuccess)
+	                     .withFailureHandler(onFailure)
+	                     .postTask(taskName.val(), requestingOffice.val());
+	});
+});
+
+</script>

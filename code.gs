@@ -1,6 +1,5 @@
-var currentUserEmail = Session.getActiveUser().getEmail();
-
-var appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
+var currentUserEmail = Session.getActiveUser().getEmail(),
+	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
 
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('parse_dashboard.html')
@@ -12,15 +11,49 @@ function doGet() {
 }
 
 function getContent(filename) {
-
-var return1= HtmlService.createTemplateFromFile(filename).getRawContent();
-return return1;
+	var html = HtmlService.createTemplateFromFile(filename).getRawContent();
+	return html;
 }
+
+function getKeys() {
+	  var properties = PropertiesService.getScriptProperties().getProperties();
+	  var appId = properties.appId;
+	  var restApi = properties.restApi;
+	  var class = properties.class;
+	  var obj = { appId: appId, restApi: restApi, class: class };
+	  	  
+	  return obj;
+}
+
+function postTask(taskName, requestingOffice, dueDate, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {
+	var properties = getKeys();
+	var appId = properties.appId;
+	var restApi = properties.restApi;
+	var class = properties.class;
+	var url = 'https://api.parse.com/1/classes/' + class;	  
+    var options = {
+	    "method" : "post",
+	    "headers" : {
+	      "X-Parse-Application-Id": appId,
+	      "X-Parse-REST-API-Key": restApi,
+	      "Content-Type": "application/json"
+	    },
+	    "contentType" : "application/json",
+	    "muteHttpExceptions" : true,
+	    "payload" : '{ "Type": "TaskData", "Name": "' + taskName + '", "ReqOffice": "' + requestingOffice + '"}'
+	  }
+	  
+	  var data = UrlFetchApp.fetch(url, options);
+      var json = data.getContentText();
+	  var cleanData = JSON.parse(json);
+	  
+	  return [json,cleanData];
+}
+/*
 function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {
   var taskCreationTime = new Date();
   var taskCreationTimeForId = Utilities.formatDate(new Date(), "America/New_York", "yyyyMMddHHmmss");
-  var email = Session.getActiveUser().getEmail();
-  var emailForId = email.split('.')[1].split('@')[0].substring(0,4).toUpperCase();  
+  var emailForId = currentUserEmail.split('.')[1].split('@')[0].substring(0,4).toUpperCase();  
   var taskId = emailForId + taskCreationTimeForId;
   var taskDueDate = new Date(dueDate);
   var allUsers = taskOwner.concat(assignTaskTo);
@@ -31,7 +64,7 @@ function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTas
             ReqOffice: requestingOffice, 
             Owner: taskOwner,
             Assignee: assignTaskTo,
-            Creator: email,
+            Creator: currentUserEmail,
             Priority: priority,
             CreationDate: {
               timestamp: taskCreationTime.getTime(), month: taskCreationTime.getMonth(), day: taskCreationTime.getDay(), date: taskCreationTime.getDate(), year: taskCreationTime.getFullYear()
@@ -53,7 +86,7 @@ function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTas
             Description: description
             };
   //save that object to the db
-  //db.save(ob);  
+  
   
   //return id
   return taskId;
@@ -153,7 +186,7 @@ function queryOne(){
   /*var result = db.query({type: "TemplateData"});
   while(result.hasNext()){
     Logger.log(result.next());
-  }*/
+  }
   
 }
 
@@ -162,7 +195,7 @@ function deleteTask(){
   var taskArray = ['MORR20130821090314', 'JOPL20140123151456', 'JOPL20140123160115']
   for(var i=0; i<taskArray.length; i++) {
     /*var current = db.query({type: "TaskData", ID: taskArray[i]}).next();
-    db.remove(current);*/
+    db.remove(current);
   }
   
 }
@@ -171,18 +204,18 @@ function deleteSelectively(theType, id) {
 	/* var data = db.query({type: theType, group: id}).next();
   //db.remove(data);
   data.keyword = [];
-  db.save(data);*/
+  db.save(data);
   Logger.log(data);
 }
 
 function updateSelectively(){
 	/*var data = db.query({type: "TaskData", ID:"TAPA20130812103408"}).next();
   data.Owner = "imelda.tapang@bia.gov";
-  db.save(data);*/
+  db.save(data);
 }
 
 function getDBSize() {
-	/*var dbSize = minnow.getDBSize(db.query({}));*/
+	/*var dbSize = minnow.getDBSize(db.query({}));
   Logger.log(dbSize);
 }
 
@@ -204,7 +237,7 @@ function createUserPreferenceObject() {
             taskFolder: ''
             };
     //save that object to the db
-    db.save(ob);*/
+    db.save(ob);
     Logger.log("save new object: " + ob);
   
 /*var autoComplete = db.query({type: "TaskGroup"});
@@ -218,7 +251,7 @@ function createUserPreferenceObject() {
       db.save(current);
       Logger.log('not here');
     }
-  }*/
+  }
 }
 
 function getUserObjects(){
@@ -229,7 +262,7 @@ function getUserObjects(){
     data_array.push(current.user);
   }
   Logger.log(data_array);
-  return data_array;*/
+  return data_array;
 }
 
 function getUserEmailAddress() {
@@ -251,7 +284,7 @@ function convertOwnerStringToArray() {
     } 
     Logger.log(current.Owner);
     Utilities.sleep(1000);
-  }*/
+  }
 }
 
 function convertActivityLogStringToArrayOfObjects() {
@@ -266,7 +299,7 @@ function convertActivityLogStringToArrayOfObjects() {
 //    Logger.log(current.Comment)
     db.save(current);
     Utilities.sleep(1000);
-  }*/
+  }
 }
 
 function updateActivityLog(taskId,activityLogText,date,type,user) {
@@ -276,7 +309,7 @@ function updateActivityLog(taskId,activityLogText,date,type,user) {
 //    activity: activityLogText, date: date, user: user, type: 'Update'
   });
   db.save(task);
-  return taskId + ' '  + activityLogText + ' ' + date + ' ' + currentUserEmail;*/
+  return taskId + ' '  + activityLogText + ' ' + date + ' ' + currentUserEmail;
 }
 
 function getActivityLogEntries(taskId) {
@@ -292,7 +325,7 @@ function getActivityLogEntries(taskId) {
     var activity = current.activity;
     returnArray.push([num,user,type,date,activity]);
   }
-  return returnArray;*/
+  return returnArray;
 }
 
 function getActivityLogEntriesFromTemplate(templateId) {
@@ -309,7 +342,7 @@ function getActivityLogEntriesFromTemplate(templateId) {
     returnArray.push([num,user,type,date,activity]);
   }
   Logger.log(returnArray);
-  return returnArray;*/
+  return returnArray;
 }
 
 function testCreate() {
@@ -328,7 +361,7 @@ function convertNullDescriptionToString() {
       db.save(current);
     }
     Utilities.sleep(1000);
-  }*/
+  }
 }
 
 function capitaliseFirstLetter(string) {
@@ -415,7 +448,7 @@ function updateEditedTemplate(templateId, templateName, shared_boolean, taskName
     db.save(update_obj);    
   } finally { // make sure it gets released even if we blow up
     lock.releaseLock();
-  }*/
+  }
   
   return "Save was successful";
 }
@@ -442,7 +475,7 @@ function fetchTemplateList(){
   templatesList_obj.templateLists.user_created = usertemplateList;
   templatesList_obj.templateLists.shared = sharedtemplateList;
   
-  return templatesList_obj;*/
+  return templatesList_obj;
 }
 
 function getTemplateData(templateId){
@@ -481,7 +514,7 @@ function getTemplateData(templateId){
     Description: current.Description
   };
   
-  return valuesObject;*/
+  return valuesObject;
 }
 
 function getSubFolder(child) {
@@ -493,5 +526,5 @@ function getActivityLogObject(id) {
 	/*var query = db.query({type:"TaskData",ID:id});
   var current = query.next();
   
-  return current.Comment;*/
-}
+  return current.Comment;
+}*/
