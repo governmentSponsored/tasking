@@ -47,7 +47,30 @@ function postTask(taskName, requestingOffice, dueDate, taskOwner, assignTaskTo, 
       var json = data.getContentText();
 	  var cleanData = JSON.parse(json);
 	  
-	  return [json,cleanData];
+	  return [cleanData];
+}
+
+function getAllTasks() {
+	  var properties = getKeys();
+	  var appId = properties.appId;
+	  var restApi = properties.restApi;
+	  var class = properties.class;
+	  var url = 'https://api.parse.com/1/classes/' + class;
+	  
+	  //options that are passed into the header along with the method
+	  var options = {
+	    "method" : "get",
+	    "headers" : {
+	      "X-Parse-Application-Id": appId,
+	      "X-Parse-REST-API-Key": restApi,
+	    }
+	  }
+	  
+	  var data = UrlFetchApp.fetch(url, options);
+	  var cleanData = JSON.parse(data).results;
+	  
+	  Logger.log(cleanData);
+	  return cleanData;
 }
 /*
 function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {

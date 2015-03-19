@@ -2,39 +2,71 @@
 	<h2>Parse Dashboard - Purely for Testing Parse Functionality</h2>
 	<ul>
 		<li>Create - Check!</li>
-		<li>Read</li>
+		<li>Read - Check!</li>
 		<li>Update</li>
 		<li>Delete</li>
 	</ul>
-	<label for="taskName">Task Name: </label>
-	<input type="text" id="taskName" />
-	<label for="requestingOffice">Requesting Office: </label>
-	<input type="text" id="requestingOffice" />
-	<button class="btn" id="postTask">Upload a new task!</button>
+	<form id="parsePost">
+	<h3>Create a Task</h3>
+		<label for="taskName">Task Name: </label>
+		<input type="text" id="taskName" />
+		<label for="requestingOffice">Requesting Office: </label>
+		<input type="text" id="requestingOffice" />
+		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
+	</form>
+	<form id="parseRead">
+		<h3>All Tasks</h3>
+		<button class="btn" type="Submit" id="readTasks">Click for all tasks!</button>
+		<ul id="allTasks"></ul>
+	</form>
 </div>
 <!-- Call jQuery libraries -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script src="//www.parsecdn.com/js/parse-1.3.5.min.js"></script>
 
 <script>
 $(function() {
 	console.log('function started');
 	var taskName = $( "#taskName" ),
-	requestingOffice = $( "#requestingOffice" );
-	function onSuccess(return_obj) {
-			console.log('success');
-			console.log(return_obj[0]);
-			console.log(return_obj[1].createdAt + ' ' + return_obj[1].objectId);
+	requestingOffice = $( "#requestingOffice" ),
+	postForm = $( "#parsePost" ),
+	submitButton = $( "#postTask" ),
+	getAllTasksButton = $( "#readTasks" ),
+	taskListUl = $( "#allTasks" );
+	
+	function onSuccessCreate(return_obj) {
+		console.log(return_obj[0].createdAt + ' ' + return_obj[0].objectId);
+		postForm[0].reset();
+		submitButton.prop("disabled",false)
+	}
+	
+	function onSuccessRead(return_obj) {
+		var currentTask;
+		taskListUl.empty();
+		for(var i=0; i<return_obj.length; i++) {
+			currentTask = return_obj[i];
+			taskListUl.append($("<li><b>Name</b>: " + currentTask.Name + " <b>Requesting Office</b>: " + currentTask.ReqOffice + "</li>"));
+			console.log(currentTask.Name + ' ' + currentTask.ReqOffice);
 		}
-		function onFailure(return_obj) {
-			console.log('fail');
-			console.log(return_obj.message);
-		}
-	$("#postTask").click(function() {
-		google.script.run.withSuccessHandler(onSuccess)
+		getAllTasksButton.prop("disabled",false);
+	}
+	
+	function onFailure(return_obj) {
+		console.log(return_obj.message);
+	}
+	
+	submitButton.click(function() {
+		$(this).prop("disabled",true);
+		google.script.run.withSuccessHandler(onSuccessCreate)
 	                     .withFailureHandler(onFailure)
 	                     .postTask(taskName.val(), requestingOffice.val());
+	});
+	
+	getAllTasksButton.click(function() {
+		$(this).prop("disabled",true);
+		google.script.run.withSuccessHandler(onSuccessRead)
+	                     .withFailureHandler(onFailure)
+	                     .getAllTasks();
 	});
 });
 
