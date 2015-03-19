@@ -15,7 +15,7 @@
 		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
 	</form>
 	<form id="parseRead">
-		<h3>All Tasks</h3>
+		<h3>Read All Tasks</h3>
 		<button class="btn" type="Submit" id="readTasks">Click for all tasks!</button>
 		<ul id="allTasks"></ul>
 	</form>
@@ -35,7 +35,6 @@ $(function() {
 	taskListUl = $( "#allTasks" );
 	
 	function onSuccessCreate(return_obj) {
-		console.log(return_obj[0].createdAt + ' ' + return_obj[0].objectId);
 		postForm[0].reset();
 		submitButton.prop("disabled",false)
 	}
