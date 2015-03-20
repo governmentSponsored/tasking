@@ -121,6 +121,32 @@ function updateATask(objectId,changeObj) {
 	  
 	  var data = UrlFetchApp.fetch(url, options);
 	  var cleanData = JSON.parse(data).results;
+	  
+	  return cleanData;
+}
+
+function deleteATask(objectId) {
+	var properties = getKeys();
+	var appId = properties.appId;
+	var restApi = properties.restApi;
+	var class = properties.class;
+	
+	var url = 'https://api.parse.com/1/classes/' + class + '/' + objectId;
+	  
+	//options that are passed into the header along with the method
+	  var options = {
+	    "method" : "delete",
+	    "headers" : {
+	      "X-Parse-Application-Id": appId,
+	      "X-Parse-REST-API-Key": restApi,
+	    }
+	  }
+	  
+	  var data = UrlFetchApp.fetch(url, options);
+	  var cleanData = JSON.parse(data).results;
+	  Logger.log(cleanData);
+	  
+	  return cleanData;
 }
 /*
 function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {

@@ -4,8 +4,8 @@
 		<li>Create - Check!</li>
 		<li>Read - Check!</li>
 		<li>Read Selectively - Check!</li>
-		<li>Update</li>
-		<li>Delete</li>
+		<li>Update - Check</li>
+		<li>Delete - Check</li>
 	</ul>
 	<form id="parsePost">
 	<h3>Create a Task</h3>
@@ -34,6 +34,11 @@
 		<h3>Update a Task</h3>
 		<ul id="updateTasks"></ul>
 	</form>
+	<hr />
+	<form id="parseDelete">
+		<h3>Delete a Task</h3>
+		<ul id="deleteTasks"></ul>
+	</form>
 </div>
 <!-- Call jQuery libraries -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -51,6 +56,7 @@ $(function() {
 	queryText = $( "#queryText" ),
 	taskListUl = $( "#allTasks" ),
 	someTasksUl = $( "#someTasks" ),
+	deleteTasksUl = $( "#deleteTasks"),
 	updateTasksUl = $( "#updateTasks" ),
 	updateButton = $( ".updateTaskButton" );
 	
@@ -118,7 +124,6 @@ $(function() {
 	
 	//update a task function
 	function onSuccessUpdate(return_obj) {
-		console.log('success');
 		$('.updatedTaskName').val('');
 		$('.updatedTaskReqOffice').val('');
 	}
@@ -166,6 +171,40 @@ $(function() {
 	}
 	
 	google.script.run.withSuccessHandler(onSuccessBuildUpdateList)
+	                     .withFailureHandler(onFailure)
+	                     .getAllTasks();
+	
+	//build list that will be deleted
+	function onSuccessDelete(return_obj) {
+		console.log('deleted!');
+	}
+	
+	function onSuccessBuildDeleteList(return_obj) {
+		var currentTask;
+		deleteTasksUl.empty();
+		for(var i=0; i<return_obj.length; i++) {
+			currentTask = return_obj[i];
+			deleteTasksUl.append($("<li><input class='objectId' type='hidden' value='" + currentTask.objectId + 
+									"' /><b>Name</b>: " + currentTask.Name + 
+									" <b>Requesting Office</b>: " + currentTask.ReqOffice +
+									"<button type='Submit' class='deleteTaskButton'>Delete!</button>" +
+									"</li>"));
+		}
+		
+		//update tasks
+		$( ".deleteTaskButton" ).bind('click', function(event) {
+			event.preventDefault();
+			var li = $(this).closest('li')
+			var objectId = li.find(".objectId").val();
+			li.remove();
+			
+			google.script.run.withSuccessHandler(onSuccessDelete)
+		                     .withFailureHandler(onFailure)
+		                     .deleteATask(objectId);
+		});
+	}
+	
+	google.script.run.withSuccessHandler(onSuccessBuildDeleteList)
 	                     .withFailureHandler(onFailure)
 	                     .getAllTasks();
 });
