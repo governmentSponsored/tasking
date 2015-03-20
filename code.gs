@@ -96,6 +96,32 @@ function getSpecificTasks(query) {
 	
 	return resultArray;
 }
+
+function updateATask(objectId,changeObj) {
+	var properties = getKeys();
+	var appId = properties.appId;
+	var restApi = properties.restApi;
+	var class = properties.class;
+	// changeObj = {Name: 'another new name', ReqOffice: "another new office"};
+	
+	var url = 'https://api.parse.com/1/classes/' + class + '/' + objectId;
+	  
+	  //options that are passed into the header along with the method
+	 var options = {
+	    "method" : "put",
+	    "headers" : {
+	      "X-Parse-Application-Id": appId,
+	      "X-Parse-REST-API-Key": restApi,
+	      "Content-Type": "application/json"
+	    },
+	    "contentType" : "application/json",
+	    "muteHttpExceptions" : true,
+	    "payload" : '{ "Name": "' + changeObj.Name + '", "ReqOffice": "' + changeObj.ReqOffice + '"}'
+	  }
+	  
+	  var data = UrlFetchApp.fetch(url, options);
+	  var cleanData = JSON.parse(data).results;
+}
 /*
 function submitComment(taskName, dueDate, requestingOffice, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {
   var taskCreationTime = new Date();
