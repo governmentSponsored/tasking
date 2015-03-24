@@ -2,10 +2,10 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
 
 function doGet() {
-  var htmlPage = HtmlService.createTemplateFromFile('parse_dashboard.html')
+  var htmlPage = HtmlService.createTemplateFromFile('create_form.html')
   .evaluate()
   .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-  .setTitle('Tasking');
+  .setTitle('Tasking!!');
   
   return htmlPage;
 }
@@ -25,12 +25,16 @@ function getKeys() {
 	  return obj;
 }
 
-function postTask(taskName, requestingOffice, dueDate, taskOwner, assignTaskTo, priority, category, lastAction, lastActionDate, stakeholders, tags, description, files) {
+function postTask(postObject) {
 	var properties = getKeys();
 	var appId = properties.appId;
 	var restApi = properties.restApi;
 	var class = properties.class;
-	var url = 'https://api.parse.com/1/classes/' + class;	  
+	var url = 'https://api.parse.com/1/classes/' + class;
+
+	var dueDate = Utilities.formatDate(new Date(postObject.DueDate), "America/New_York", "yyyy-MM-dd'T'HH:mm:ss'Z'");
+	var date = new Date(postObject.DueDate).toISOString();
+	
     var options = {
 	    "method" : "post",
 	    "headers" : {
@@ -40,7 +44,14 @@ function postTask(taskName, requestingOffice, dueDate, taskOwner, assignTaskTo, 
 	    },
 	    "contentType" : "application/json",
 	    "muteHttpExceptions" : true,
-	    "payload" : '{ "Type": "TaskData", "Name": "' + taskName + '", "ReqOffice": "' + requestingOffice + '"}'
+	    "payload" : '{ "Type": "TaskData", "Name": "' + postObject.Name + 
+	    				'", "Requester": "' + postObject.Requester + 
+	    				'", "DueDate": {"__type": "Date", "iso": "' + new Date(postObject.DueDate).toJSON() + 
+	    				'"}, "Owner": "' + postObject.Owner +
+	    				'", "Creator": "' + postObject.Creator +
+	    				'", "Assignee": "' + postObject.Assignee +
+	    				'", "Priority": ' + postObject.Priority +
+	    				'}'
 	  }
 	  
 	  var data = UrlFetchApp.fetch(url, options);

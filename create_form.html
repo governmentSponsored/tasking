@@ -1,0 +1,67 @@
+<from id="createTask">
+	<fieldset>
+		<legend>* = Required</legend>
+		<h3>Create a Task</h3>
+		<label for="name">Task Name: </label>
+		<input type="text" id="name" required/>
+		<label for="requester">Requester: </label>
+		<input type="email" id="requester" required/>
+		<label for="requester">Due Date: </label>
+		<input type="datetime" id="dueDate" required/>
+		<label for="requester">Owner: </label>
+		<input type="email" id="owner" required/>
+		<label for="requester">Creator: </label>
+		<input type="email" id="creator" required/>
+		<label for="requester">Assignee: </label>
+		<input type="email" id="assignee" required/>
+		<label for="requester">Priority: </label>
+		<input type="text" id="priority" required/>
+		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
+	</fieldset>
+</from>
+
+<!-- Call jQuery libraries -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+<script>
+$(function() {
+	var name = $( "#name" ),
+	requester = $( "#requester" ),
+	dueDate = $( "#dueDate" ),
+	owner = $( "#owner" ),
+	creator = $( "#creator" ),
+	assignee = $( "#assignee" ),
+	priority = $( "#priority" ),
+	createTaskForm = $( "#createTask" ),
+	submitButton = $( "#postTask" ),
+	postObject = {};
+	
+	function onFailure(return_obj) {
+		console.log(return_obj.message);
+	}
+	
+	function onSuccessCreate(return_obj) {
+		//createTaskForm[0].reset();
+		submitButton.prop("disabled",false);
+		alert(return_obj[0].objectId);
+	}
+	
+	submitButton.click(function(event) {
+		alert('clicked!');
+		event.preventDefault();
+		$(this).prop("disabled",true);
+		
+		postObject.Name = name.val();
+		postObject.Requester = requester.val();
+		postObject.DueDate = dueDate.val();
+		postObject.Owner = owner.val();
+		postObject.Creator = creator.val();
+		postObject.Assignee = assignee.val();
+		postObject.Priority = priority.val();
+		google.script.run.withSuccessHandler(onSuccessCreate)
+	                     .withFailureHandler(onFailure)
+	                     .postTask(postObject);
+	});
+});
+</script>
