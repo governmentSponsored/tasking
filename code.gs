@@ -4,7 +4,7 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('create_form.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+						    .setSandboxMode(HtmlService.SandboxMode.NATIVE)
 						    .setTitle('Tasking!!'),
   properties = getKeys(),
   appId = properties.appId,
@@ -26,10 +26,6 @@ function doGet() {
   var data = UrlFetchApp.fetch(url, options);
   var json = data.getContentText();
   var cleanData = JSON.parse(json);
-  
-  Logger.log(data);
-  Logger.log(json);
-  Logger.log(cleanData);
   
   return htmlPage;
 }
@@ -75,7 +71,9 @@ function postTask(postObject) {
 	    				'", "Creator": "' + postObject.Creator +
 	    				'", "Assignee": "' + postObject.Assignee +
 	    				'", "Priority": ' + postObject.Priority +
-	    				'}'
+                        ', "FileUrl": "' + postObject.FileUrl +
+                        '", "FileName": "' + postObject.FileName +
+	    				'"}'
 	  }
 	  
 	  var data = UrlFetchApp.fetch(url, options);
