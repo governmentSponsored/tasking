@@ -3,9 +3,33 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('create_form.html')
-  .evaluate()
-  .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-  .setTitle('Tasking!!');
+						    .evaluate()
+						    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+						    .setTitle('Tasking!!'),
+  properties = getKeys(),
+  appId = properties.appId,
+  restApi = properties.restApi,
+  url = 'https://api.parse.com/1/events/AppOpened';
+  
+  var options = {
+		    "method" : "post",
+		    "headers" : {
+		      "X-Parse-Application-Id": appId,
+		      "X-Parse-REST-API-Key": restApi,
+		      "Content-Type": "application/json"
+		    },
+             "muteHttpExceptions" : true,
+             "contentType" : "application/json",
+             "payload" : '{ "Data": { "at":{ "__type":"Date", "iso":"2013-05-02T12:00:00.000Z" } } }'
+		  }
+		  
+  var data = UrlFetchApp.fetch(url, options);
+  var json = data.getContentText();
+  var cleanData = JSON.parse(json);
+  
+  Logger.log(data);
+  Logger.log(json);
+  Logger.log(cleanData);
   
   return htmlPage;
 }
@@ -16,11 +40,11 @@ function getContent(filename) {
 }
 
 function getKeys() {
-	  var properties = PropertiesService.getScriptProperties().getProperties();
-	  var appId = properties.appId;
-	  var restApi = properties.restApi;
-	  var class = properties.class;
-	  var obj = { appId: appId, restApi: restApi, class: class };
+	  var properties = PropertiesService.getScriptProperties().getProperties(),
+	  appId = properties.appId,
+	  restApi = properties.restApi,
+	  class = properties.class,
+	  obj = { appId: appId, restApi: restApi, class: class };
 	  	  
 	  return obj;
 }
