@@ -1,31 +1,3 @@
-<form id="createTask">
-	<fieldset>
-		<legend>Create a Task</legend>
-		<h4>* = Required</h4>
-		<label for="name">Task Name: * </label>
-		<input type="text" id="name" required />
-		<label for="requester">Requester: * </label>
-		<input type="email" id="requester" required />
-		<label for="requester">Due Date: * </label>
-		<input type="datetime" id="dueDate" required />
-		<label for="requester">Owner: * </label>
-		<input type="email" id="owner" required />
-		<label for="requester">Creator: * </label>
-		<input type="email" id="creator" required />
-		<label for="requester">Assignee: * </label>
-		<input type="email" id="assignee" required />
-		<label for="priority">Priority: * </label>
-		<input type="text" id="priority" required />
-		<label for="documentUpload">Add Document: * </label>
-		<input id="documentUpload" type="file" name="documentUpload" required />
-		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
-	</fieldset>
-</form>
-
-<!-- Call jQuery libraries -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-
 <script>
 $(function() {
 	var name = $( "#name" ),
@@ -40,6 +12,7 @@ $(function() {
 	postObject = {};
 	
 	function onFailure(return_obj) {
+        console.log('failed!');
 		console.log(return_obj.message);
         submitButton.prop("disabled",false);
 	}
@@ -53,10 +26,14 @@ $(function() {
 		console.log(return_obj[0].objectId);
 	}
 	
+    function fixDate(date) {
+      return date.replace(/-/g,"/");
+    }
+    
 	function onSuccessUpload(return_obj) {
 		postObject.Name = name.val();
 		postObject.Requester = requester.val();
-		postObject.DueDate = dueDate.val();
+		postObject.DueDate = fixDate(dueDate.val());
 		postObject.Owner = owner.val();
 		postObject.Creator = creator.val();
 		postObject.Assignee = assignee.val();
@@ -71,10 +48,44 @@ $(function() {
 	submitButton.click(function(event) {
 		event.preventDefault();
         $(this).prop("disabled",true);
-        
-		google.script.run.withSuccessHandler(onSuccessUpload)
-	                     .withFailureHandler(onFailure)
-	                     .uploadFile(document.getElementById("createTask"));
+        var count = validate();
+        if(count > 0) {
+          $(this).prop("disabled",false);
+          alert('nope!');
+        } else {
+          google.script.run.withSuccessHandler(onSuccessUpload)
+                           .withFailureHandler(onFailure)
+                           .uploadFile(document.getElementById("createTask"));
+        }
 	});
+    
+    function validate() {
+      var count = 0,
+      pattern,
+      id,
+      value;
+      
+      $("#createTask input").each(function() {
+        var $this = $(this);
+        pattern = new RegExp($this.attr('pattern'));
+        id = console.log($this.attr('id'));
+        if(pattern == undefined) { //no pattern defined
+          count++;
+        } else {            
+            if(!$this.val()) { //no value
+              count++;
+            } else { //do some actual validation
+              value = $this.val();
+              var result = pattern.test(value);
+              if(!result) {//does not match pattern.
+                count++;
+              }
+            }            
+        }
+      });
+      
+      console.log(count);
+      return count;
+    }
 });
 </script>
