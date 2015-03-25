@@ -1,24 +1,26 @@
-<from id="createTask">
+<form id="createTask">
 	<fieldset>
-		<legend>* = Required</legend>
-		<h3>Create a Task</h3>
-		<label for="name">Task Name: </label>
-		<input type="text" id="name" required/>
-		<label for="requester">Requester: </label>
-		<input type="email" id="requester" required/>
-		<label for="requester">Due Date: </label>
-		<input type="datetime" id="dueDate" required/>
-		<label for="requester">Owner: </label>
-		<input type="email" id="owner" required/>
-		<label for="requester">Creator: </label>
-		<input type="email" id="creator" required/>
-		<label for="requester">Assignee: </label>
-		<input type="email" id="assignee" required/>
-		<label for="requester">Priority: </label>
-		<input type="text" id="priority" required/>
+		<legend>Create a Task</legend>
+		<h4>* = Required</h4>
+		<label for="name">Task Name: * </label>
+		<input type="text" id="name" required />
+		<label for="requester">Requester: * </label>
+		<input type="email" id="requester" required />
+		<label for="requester">Due Date: * </label>
+		<input type="datetime" id="dueDate" required />
+		<label for="requester">Owner: * </label>
+		<input type="email" id="owner" required />
+		<label for="requester">Creator: * </label>
+		<input type="email" id="creator" required />
+		<label for="requester">Assignee: * </label>
+		<input type="email" id="assignee" required />
+		<label for="priority">Priority: * </label>
+		<input type="text" id="priority" required />
+		<label for="documentUpload">Add Document: * </label>
+		<input id="documentUpload" type="file" name="documentUpload" required />
 		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
 	</fieldset>
-</from>
+</form>
 
 <!-- Call jQuery libraries -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -39,19 +41,19 @@ $(function() {
 	
 	function onFailure(return_obj) {
 		console.log(return_obj.message);
+        submitButton.prop("disabled",false);
 	}
 	
 	function onSuccessCreate(return_obj) {
-		//createTaskForm[0].reset();
+		$(':input','#createTask').not(':button, :submit, :reset, :hidden')
+								 .val('')
+								 .removeAttr('checked')
+								 .removeAttr('selected');
 		submitButton.prop("disabled",false);
-		alert(return_obj[0].objectId);
+		console.log(return_obj[0].objectId);
 	}
 	
-	submitButton.click(function(event) {
-		alert('clicked!');
-		event.preventDefault();
-		$(this).prop("disabled",true);
-		
+	function onSuccessUpload(return_obj) {
 		postObject.Name = name.val();
 		postObject.Requester = requester.val();
 		postObject.DueDate = dueDate.val();
@@ -59,9 +61,20 @@ $(function() {
 		postObject.Creator = creator.val();
 		postObject.Assignee = assignee.val();
 		postObject.Priority = priority.val();
+        postObject.FileUrl = return_obj[1];
+        postObject.FileName = return_obj[0];
 		google.script.run.withSuccessHandler(onSuccessCreate)
 	                     .withFailureHandler(onFailure)
 	                     .postTask(postObject);
+	}
+	
+	submitButton.click(function(event) {
+		event.preventDefault();
+        $(this).prop("disabled",true);
+        
+		google.script.run.withSuccessHandler(onSuccessUpload)
+	                     .withFailureHandler(onFailure)
+	                     .uploadFile(document.getElementById("createTask"));
 	});
 });
 </script>
