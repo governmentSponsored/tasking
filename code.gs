@@ -5,7 +5,7 @@ function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('create_form.html')
 						    .evaluate()
 						    .setSandboxMode(HtmlService.SandboxMode.NATIVE)
-						    .setTitle('Tasking!!!'),
+						    .setTitle('Tasking!'),
   properties = getKeys(),
   appId = properties.appId,
   restApi = properties.restApi,

@@ -48,44 +48,61 @@ $(function() {
 	submitButton.click(function(event) {
 		event.preventDefault();
         $(this).prop("disabled",true);
-        var count = validate();
+        var count = validate(true);
         if(count > 0) {
           $(this).prop("disabled",false);
-          alert('nope!');
         } else {
           google.script.run.withSuccessHandler(onSuccessUpload)
                            .withFailureHandler(onFailure)
                            .uploadFile(document.getElementById("createTask"));
         }
 	});
+	
+	$("#createTask input").on('blur', function() {
+		validate(false, $(this));
+	});
     
-    function validate() {
+    function validate(wholeForm, input) {
       var count = 0,
       pattern,
       id,
       value,
-      result;
+      result,
+      element,
+      selector;
       
-      $("#createTask input").each(function() {
+      //check to see if validition is for the whole form or just single input.
+      if(wholeForm) {
+      	element = $("#createTask input");
+      } else {
+      	element = input;
+      }
+      
+      element.each(function() {
         var $this = $(this);
         pattern = new RegExp($this.attr('pattern'));
-        id = console.log($this.attr('id'));
+        id = $this.attr('id');
+        selector = $('#' + id); 
         if(pattern == undefined) { //no pattern defined
+          selector.addClass('error');
           count++;
         } else {            
             if(!$this.val()) { //no value
+              selector.addClass('error');
               count++;
             } else { //do some actual validation
               value = $this.val();
               result = pattern.test(value);
               if(!result) {//does not match pattern.
+              	selector.addClass('error');
                 count++;
+              } else { //all ok
+              	selector.removeClass('error');
               }
             }            
         }
       });
       
-      console.log(count);
       return count;
     }
 });
