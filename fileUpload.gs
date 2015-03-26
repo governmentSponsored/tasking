@@ -15,45 +15,37 @@ function serverFunc(theForm) {
   return nameUrlPair_array;
 }
 
-function uploadFromSpreadsheetView(theForm,createForm) {
-  Logger.clear();
-  Logger.log('got started');
-  var currentUser = Session.getActiveUser().getEmail();
-  var data = db.query({type: "TaskUser", user: currentUser});
-  var current = data.next();
-  if(current.taskFolder == '' || current.taskFolder == null || current.taskFolder == undefined) {
-    var folder = DocsList.createFolder('Task Documents');
-    var folderId = folder.getId();
-    current.taskFolder = folderId;
-    db.save(current);
-    Logger.log('new folder');
-  } else {
-    var folderId = current.taskFolder;
-    Logger.log('old folder');
-  }
-  Logger.log('got the folder');
-  var nameUrlPair_array = [];
-  var fileBlob = theForm.add_attach_upload_file;
-  var flag = true;
-  Logger.log('got the blob');
-  var adoc = DocsList.createFile(fileBlob);
-  var folder = DocsList.getFolderById(folderId);
-  var rootFolder = DocsList.getRootFolder();
-  adoc.addToFolder(folder);
-  adoc.removeFromFolder(rootFolder);
+function uploadFile(form) {  
+	//declare variables
+	var taskFolder,
+	urlAndName = [],
+	fileBlob = form.documentUpload,
+	document,
+	rootFolder;
+	
+	//see if folder exists. if not, then create one.
+	try {
+	  taskFolder = DocsList.getFolder('Task Documents');
+	} catch(e) {
+	  taskFolder = DocsList.createFolder('Task Documents');
+	}
+	
+	//create the file
+	document = DocsList.createFile(fileBlob);
+	
+	//remove from root folder and add to Task Documents one.
+	rootFolder = DocsList.getRootFolder();
+	document.addToFolder(taskFolder);
+	document.removeFromFolder(rootFolder);
+	
+	//push data to be returned
+	urlAndName.push(document.getName(), document.getUrl());
+	
+	Logger.log(urlAndName)
+	return urlAndName;
   
-//  if(flag) {
-//    Logger.log('creat form...ignore');
-//  } else {
-//    var usersArray = new Array();
-//    usersArray = getOwnerCreatorAssigneeForUpload(theForm.taskId_upload);
-//    Logger.log(theForm.taskId_upload +  ' ' + usersArray);
-//    adoc.addEditors(usersArray);
-//  }
-  nameUrlPair_array.push(adoc.getName(), adoc.getUrl());
-  return nameUrlPair_array;
 }
-
+/*
 function createPdfFromEmail(email,taskId,include,create) {
 //  var email = 'https://mail.google.com/mail/u/0/?tab=wm#all/14272673a1737bcc';
   var check = email.indexOf('https://mail.google.com/mail/');
@@ -160,4 +152,4 @@ function addAssigneesAndOwnersToDocumentsOnSave(taskId) {
     }//end for
   }//end for
   return taskId + ' ' + owners + ' ' + assignees;
-}
+}*/
