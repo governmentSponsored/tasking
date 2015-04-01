@@ -119,5 +119,13 @@ $(function() {
     
     return count;
   }
+  
+  //show tooltips if there's an error
+  $( document ).tooltip({items: "input.error",
+  						 show: {effect: "slide"}, 
+  						 position: { my: "left+15 center", 
+  						 			 at: "right center" }, 
+  						 hide: {effect: "slide", direction: "left"} 
+  						});
 });
 </script>
