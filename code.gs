@@ -2,9 +2,9 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
 
 function doGet() {
-  var htmlPage = HtmlService.createTemplateFromFile('create_form.html')
+  var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.NATIVE)
+						    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
