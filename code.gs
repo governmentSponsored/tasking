@@ -4,7 +4,7 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+						    .setSandboxMode(HtmlService.SandboxMode.NATIVE)
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
