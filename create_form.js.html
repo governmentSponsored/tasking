@@ -1,0 +1,128 @@
+<script>
+$(function() {
+  var name = $( "#name" ),
+  requester = $( "#requester" ),
+  dueDate = $( "#dueDate" ),
+  owner = $( "#owner" ),
+  creator = $( "#creator" ),
+  assignee = $( "#assignee" ),
+  priority = $( "#priority" ),
+  createTaskForm = $( "#createTask" ),
+  submitButton = $( "#postTask" ),
+  postObject = {};
+    
+  //date picker
+  dueDate.datepicker();
+  
+  //file upload thingy
+  document.getElementById("documentUpload").onchange = function () {
+    document.getElementById("uploadFileName").value = this.value.split("fakepath\\")[1];
+  };
+  
+  function onFailure(return_obj) {
+    console.log('failed!');
+    console.log(return_obj.message);
+    submitButton.prop("disabled",false);
+  }
+  
+  function onSuccessCreate(return_obj) {
+    $(':input','#createTask').not(':button, :submit, :reset, :hidden')
+                             .val('')
+                             .removeAttr('checked')
+                             .removeAttr('selected');
+    
+    submitButton.prop("disabled",false);
+    console.log(return_obj[0].objectId);
+  }
+    
+  function onSuccessUpload(return_obj) {
+    postObject = {
+      Name: name.val(),
+      Requester: requester.val(),
+      DueDate: dueDate.val(),
+      Owner: owner.val(),
+      Creator: creator.val(),
+      Assignee: assignee.val(),
+      Priority: priority.val(),
+      FileUrl: return_obj[1],
+      FileName: return_obj[0]
+    };
+    
+    google.script.run.withSuccessHandler(onSuccessCreate)
+                       .withFailureHandler(onFailure)
+                       .postTask(postObject);
+  }
+  
+  submitButton.click(function(event) {
+    event.preventDefault();
+    $(this).prop("disabled",true);
+    
+    var count = validate(true);
+    if(count > 0) {
+      $(this).prop("disabled",false);
+    } else {
+      google.script.run.withSuccessHandler(onSuccessUpload)
+                       .withFailureHandler(onFailure)
+                       .uploadFile(document.getElementById("createTask"));
+    }
+  });
+  
+  $("#createTask input").on('blur change', function() {
+    validate(false, $(this));
+  });
+    
+  function validate(wholeForm, input) {
+    //declare variables
+    var count = 0,
+    pattern,
+    id,
+    value,
+    result,
+    element,	
+    selector,
+    $this;
+    
+    //check to see if validition is for the whole form or just single input.
+    element = wholeForm ? $("#createTask input") : input;
+    
+    element.each(function() {
+      var $this = $(this);
+      pattern = new RegExp($this.attr('pattern'));
+      id = $this.attr('id');
+      selector = $('#' + id); 
+      if(pattern == undefined) { //no pattern defined
+        selector.addClass('error');
+        count++;
+      } else {            
+          if(!$this.val()) { //no value
+            selector.addClass('error');
+            count++;
+            if(id == 'documentUpload') { //deal with weird upload styling
+            	$('#uploadFileName').addClass('error');
+            	count++;
+            }
+          } else { //do some actual validation
+            value = $this.val();
+            result = pattern.test(value);
+            if(!result) {//does not match pattern.
+              selector.addClass('error');
+              count++;
+            } else { //all ok
+              selector.removeClass('error');
+              if(id == 'documentUpload') { //deal with validated weird upload styling
+            	$('#uploadFileName').removeClass('error');
+            	}
+            }
+          }            
+      }
+    });
+    
+     $( "input.error" ).tooltip();
+    
+    return count;
+  }
+  
+  //show tooltips if there's an error
+ 
+});
+</script>

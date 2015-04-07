@@ -1,0 +1,212 @@
+<div>
+	<h2>Parse Dashboard - Purely for Testing Parse Functionality</h2>
+	<ul>
+		<li>Create - Check!</li>
+		<li>Read - Check!</li>
+		<li>Read Selectively - Check!</li>
+		<li>Update - Check</li>
+		<li>Delete - Check</li>
+	</ul>
+	<form id="parsePost">
+	<h3>Create a Task</h3>
+		<label for="taskName">Task Name: </label>
+		<input type="text" id="taskName" />
+		<label for="requestingOffice">Requesting Office: </label>
+		<input type="text" id="requestingOffice" />
+		<button class="btn" type="Submit" id="postTask">Upload a new task!</button>
+	</form>
+	<hr />
+	<form id="parseRead">
+		<h3>Read All Tasks</h3>
+		<button class="btn" type="Submit" id="readTasks">Click for all tasks!</button>
+		<ul id="allTasks"></ul>
+	</form>
+	<hr />
+	<form id="parseReadSome">
+		<h3>Read Some Tasks</h3>
+		<label for="queryText">Search Text: </label>
+		<input type="text" id="queryText" />
+		<button class="btn" type="Submit" id="readSomeTasks">Search!</button>
+		<ul id="someTasks"></ul>
+	</form>
+	<hr />
+	<form id="parseUpdate">
+		<h3>Update a Task</h3>
+		<ul id="updateTasks"></ul>
+	</form>
+	<hr />
+	<form id="parseDelete">
+		<h3>Delete a Task</h3>
+		<ul id="deleteTasks"></ul>
+	</form>
+</div>
+<!-- Call jQuery libraries -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+<script>
+$(function() {
+	//declare function scoped variables
+	var taskName = $( "#taskName" ),
+	requestingOffice = $( "#requestingOffice" ),
+	postForm = $( "#parsePost" ),
+	submitButton = $( "#postTask" ),
+	getAllTasksButton = $( "#readTasks" ),
+	getSomeTasksButton = $( "#readSomeTasks" ),
+	queryText = $( "#queryText" ),
+	taskListUl = $( "#allTasks" ),
+	someTasksUl = $( "#someTasks" ),
+	deleteTasksUl = $( "#deleteTasks"),
+	updateTasksUl = $( "#updateTasks" ),
+	updateButton = $( ".updateTaskButton" );
+	
+	//create a task
+	function onSuccessCreate(return_obj) {
+		postForm[0].reset();
+		submitButton.prop("disabled",false)
+	}
+	
+	//read all tasks
+	function onSuccessRead(return_obj) {
+		var currentTask;
+		taskListUl.empty();
+		for(var i=0; i<return_obj.length; i++) {
+			currentTask = return_obj[i];
+			taskListUl.append($("<li><b>Name</b>: " + currentTask.Name + " <b>Requesting Office</b>: " + currentTask.ReqOffice + "</li>"));
+		}
+		getAllTasksButton.prop("disabled",false);
+	}
+	
+	// query a task
+	function onSuccessQuery(return_obj) {
+		var currentTask;
+		someTasksUl.empty();
+		if(return_obj[0] == 'No Results!') {
+			someTasksUl.append($("<li><b>" + return_obj[0] + "</b></li>"));
+		} else {
+			for(var i=0; i<return_obj.length; i++) {
+				currentTask = return_obj[i];
+				someTasksUl.append($("<li><b>Name</b>: " + currentTask.Name + " <b>Requesting Office</b>: " + currentTask.ReqOffice + "</li>"));
+				console.log(currentTask.Name + ' ' + currentTask.ReqOffice);
+			}
+		}
+		getSomeTasksButton.prop("disabled",false);
+	}
+	
+	//all failures
+	function onFailure(return_obj) {
+		console.log(return_obj.message);
+	}
+	
+	//add a task
+	submitButton.click(function() {
+		$(this).prop("disabled",true);
+		google.script.run.withSuccessHandler(onSuccessCreate)
+	                     .withFailureHandler(onFailure)
+	                     .postTask(taskName.val(), requestingOffice.val());
+	});
+	
+	//read all tasks
+	getAllTasksButton.click(function() {
+		$(this).prop("disabled",true);
+		google.script.run.withSuccessHandler(onSuccessRead)
+	                     .withFailureHandler(onFailure)
+	                     .getAllTasks();
+	});
+	
+	//query tasks
+	getSomeTasksButton.click(function() {
+		$(this).prop("disabled",true);
+		google.script.run.withSuccessHandler(onSuccessQuery)
+	                     .withFailureHandler(onFailure)
+	                     .getSpecificTasks(queryText.val());
+	});
+	
+	//update a task function
+	function onSuccessUpdate(return_obj) {
+		$('.updatedTaskName').val('');
+		$('.updatedTaskReqOffice').val('');
+	}
+	
+	//build list that will be updated
+	function onSuccessBuildUpdateList(return_obj) {
+		var currentTask;
+		updateTasksUl.empty();
+		for(var i=0; i<return_obj.length; i++) {
+			currentTask = return_obj[i];
+			updateTasksUl.append($("<li><input class='objectId' type='hidden' value='" + currentTask.objectId + 
+									"' /><b>Name</b>: " + currentTask.Name + 
+									" <b>Requesting Office</b>: " + currentTask.ReqOffice +
+									"<br /><label>New Name: <input type='text' class='updatedTaskName'></label> " + 
+									"<label>New Req Office: <input type='text' class='updatedTaskReqOffice'></label> " +
+									"<button type='Submit' class='updateTaskButton'>Update!</button>" +
+									"</li>"));
+		}
+		
+		//update tasks
+		$( ".updateTaskButton" ).bind('click', function(event) {
+			event.preventDefault();
+			var changeObject = {};
+			var li = $(this).closest('li');
+			var newName = li.find('.updatedTaskName').val();
+			var newReqOffice = li.find(".updatedTaskReqOffice").val();
+			var objectId = li.find(".objectId").val();
+			var count = 0;
+			
+			if(newName != '') {
+				changeObject.Name = newName;
+				count++;
+			}
+			if(newReqOffice != '') {
+				changeObject.ReqOffice = newReqOffice;
+				count++;
+			}
+			
+			if(count != 0) {
+				google.script.run.withSuccessHandler(onSuccessUpdate)
+			                     .withFailureHandler(onFailure)
+			                     .updateATask(objectId,changeObject);
+		    }
+		});
+	}
+	
+	google.script.run.withSuccessHandler(onSuccessBuildUpdateList)
+	                     .withFailureHandler(onFailure)
+	                     .getAllTasks();
+	
+	//build list that will be deleted
+	function onSuccessDelete(return_obj) {
+		console.log('deleted!');
+	}
+	
+	function onSuccessBuildDeleteList(return_obj) {
+		var currentTask;
+		deleteTasksUl.empty();
+		for(var i=0; i<return_obj.length; i++) {
+			currentTask = return_obj[i];
+			deleteTasksUl.append($("<li><input class='objectId' type='hidden' value='" + currentTask.objectId + 
+									"' /><b>Name</b>: " + currentTask.Name + 
+									" <b>Requesting Office</b>: " + currentTask.ReqOffice +
+									"<button type='Submit' class='deleteTaskButton'>Delete!</button>" +
+									"</li>"));
+		}
+		
+		//update tasks
+		$( ".deleteTaskButton" ).bind('click', function(event) {
+			event.preventDefault();
+			var li = $(this).closest('li')
+			var objectId = li.find(".objectId").val();
+			li.remove();
+			
+			google.script.run.withSuccessHandler(onSuccessDelete)
+		                     .withFailureHandler(onFailure)
+		                     .deleteATask(objectId);
+		});
+	}
+	
+	google.script.run.withSuccessHandler(onSuccessBuildDeleteList)
+	                     .withFailureHandler(onFailure)
+	                     .getAllTasks();
+});
+
+</script>
