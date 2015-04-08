@@ -1,3 +1,66 @@
 <script>
+$(function() {
+  function addData(data) {
+  	var tableBody = $("#myTasksTable").find('tbody'),
+  	i=0,
+  	len=data.length;
+  	
+  	for(i;i<len;i++) {
+	  	tableBody
+	  		.append($('<tr>')
+	  			.append($('<td class="myTaskName">')
+	  				.append($('<p>' + data[i].Name + '</p>')
+	  				)
+	  			)
+	  			.append($('<td class="myTaskDueDate">')
+	  				.append($('<p>' + data[i].DueDate.iso + '</p>')
+	  				)
+	  			)
+	  			.append($('<td class="myTaskPriority">')
+	  				.append($('<p>' + data[i].Priority + '</p>')
+	  				)
+	  			)
+	  			.append($('<td class="myTaskFiles">')
+	  				.append($('<p><a href="' + data[i].FileUrl + '" target="_blank">'  + data[i].FileName + '</a></p>')
+	  				)
+	  			)
+	  			.append($('<td class="myTaskRequester">')
+	  				.append($('<p>' + data[i].Requester + '</p>')
+	  				)
+	  			)
+	  			.append($('<td class="myTaskCreator">')
+	  				.append($('<p>' + data[i].Creator + '</p>')
+	  				)
+	  			)
+	  			.append($('<td class="myTaskDateCreated">')
+	  				.append($('<p>' + data[i].createdAt + '</p>')
+	  				)
+	  			)
+	  		);
+  	}
+  	
+  	//since nth-child isn't supported...
+  	$( "#myTasksTable tr:odd" ).addClass('odd');
+  }
+  
+  //boo
+  function onFailure(return_obj) {
+    console.log('failed!');
+    console.log(return_obj.message);
+  }
+  
+  //yay
+  function onSuccess(return_obj) {
+  	var numberOfTotalTasks = return_obj.length,
+  	textForNav = ' (' + numberOfTotalTasks + ')';
+  	$("#numberofTasks").text(textForNav);
+  	
+    addData(return_obj);
+    
+  }
 
+	google.script.run.withSuccessHandler(onSuccess)
+	                 .withFailureHandler(onFailure)
+	                 .getMyTasks();
+});
 </script>

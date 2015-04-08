@@ -130,6 +130,32 @@ function getSpecificTasks(query) {
 	return resultArray;
 }
 
+function getMyTasks() {
+	var properties = getKeys(),
+	appId = properties.appId,
+	restApi = properties.restApi,
+	class = properties.class,
+	url = 'https://api.parse.com/1/classes/' + class;
+	  
+	  //query with key/value properties passed in
+	  var query = 'where={"Creator":"' + currentUserEmail + '"}'
+	  var encoded = encodeURIComponent(query);
+	  var queryUrl = url + '?' + encoded;
+	  
+	  var options = {
+	    "method" : "get",
+	    "headers" : {
+	      "X-Parse-Application-Id": appId,
+	      "X-Parse-REST-API-Key": restApi,
+	    }
+	  }
+	  
+	  var data = UrlFetchApp.fetch(queryUrl, options);
+	  var cleanData = JSON.parse(data).results;
+	  
+	  return cleanData;
+}
+
 function updateATask(objectId,changeObj) {
 	var properties = getKeys();
 	var appId = properties.appId;
