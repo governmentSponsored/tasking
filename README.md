@@ -2,7 +2,7 @@
 google apps script based tasking application with a Parse NoSQL back-end.
 
 # Overview
-Originally this application used google's built-in NoSQL database ScriptDB, but as Google removed that service, this application needed to a massive overhaul.
+Originally this application used google's built-in NoSQL database ScriptDB, but as Google removed that service, this application needed to undergo a massive overhaul.
 
 
 # Installation
