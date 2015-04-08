@@ -3,14 +3,24 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 <?!= getContent("style.css.html") ?>
 
+
 <!-- html content -->
 <?!= getContent("navigation.html") ?>
 
-<div id="create">
-	<?!= getContent("create_form.html") ?>
-</div>
-
-<div id="myAssignments">
+<div id="panels">
+	<div id="create">
+		<?!= getContent("create_form.html") ?>
+	</div>
+	
+	<div id="myAssignments" class="hide">
+		
+	</div>
+	
+	<div id="myTasks" class="hide">
+	</div>
+	
+	<div id="searchTasks" class="hide">
+	</div>
 </div>
 
 
@@ -19,3 +29,4 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <?!= getContent("create_form.js.html") ?>
+<?!= getContent("navigation.js.html") ?>
