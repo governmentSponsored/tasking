@@ -73,7 +73,7 @@ $(function() {
   });
   
   //call the validate on several actions
-  $("#createTask input").on('click tap blur change', function() {
+  $("#createTask input").on('blur change', function() {
     validate(false, $(this));
   });
     

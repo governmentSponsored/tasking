@@ -4,7 +4,7 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+						    .setSandboxMode(HtmlService.SandboxMode.NATIVE) //has to be native so file upload works
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
@@ -47,14 +47,13 @@ function getKeys() {
 }
 
 function postTask(postObject) {
-	var properties = getKeys();
-	var appId = properties.appId;
-	var restApi = properties.restApi;
-	var class = properties.class;
-	var url = 'https://api.parse.com/1/classes/' + class;
-
-	var dueDate = Utilities.formatDate(new Date(postObject.DueDate), "America/New_York", "yyyy-MM-dd'T'HH:mm:ss'Z'");
-	var date = new Date(postObject.DueDate).toISOString();
+	var properties = getKeys(),
+	appId = properties.appId,
+	restApi = properties.restApi,
+	class = properties.class,
+	url = 'https://api.parse.com/1/classes/' + class,
+	dueDate = Utilities.formatDate(new Date(postObject.DueDate), "America/New_York", "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+	date = new Date(postObject.DueDate).toISOString();
 	
     var options = {
 	    "method" : "post",
