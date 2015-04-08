@@ -1,0 +1,18 @@
+<script>
+$(function() {
+	
+	function switchTab(tab) {
+		var panelId = tab.attr('id').split('Tab')[0]; 
+		console.log(panelId);
+		$("#panels").children()
+					.hide()
+					.removeClass('hide');
+		$("#" + panelId).show();
+		
+	}
+
+	$('.navTab').on('click tap', function() {
+		switchTab($(this));
+	});
+});
+</script>
