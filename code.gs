@@ -4,13 +4,14 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.NATIVE)
+						    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
   restApi = properties.restApi,
   url = 'https://api.parse.com/1/events/AppOpened';
   
+  //track app opens
   var options = {
 		    "method" : "post",
 		    "headers" : {

@@ -14,17 +14,20 @@ $(function() {
   //date picker
   dueDate.datepicker();
   
-  //file upload thingy
+  //show text of file to be uploaded
   document.getElementById("documentUpload").onchange = function () {
     document.getElementById("uploadFileName").value = this.value.split("fakepath\\")[1];
   };
   
+  //display error in log, enable buttons
   function onFailure(return_obj) {
     console.log('failed!');
     console.log(return_obj.message);
     submitButton.prop("disabled",false);
   }
   
+  
+  //reset the form and enable buttons
   function onSuccessCreate(return_obj) {
     $(':input','#createTask').not(':button, :submit, :reset, :hidden')
                              .val('')
@@ -34,7 +37,8 @@ $(function() {
     submitButton.prop("disabled",false);
     console.log(return_obj[0].objectId);
   }
-    
+  
+  //rest of form upload
   function onSuccessUpload(return_obj) {
     postObject = {
       Name: name.val(),
@@ -53,6 +57,7 @@ $(function() {
                        .postTask(postObject);
   }
   
+  //submit the content of the form by first uploading the file, and then uploading the rest of the form
   submitButton.click(function(event) {
     event.preventDefault();
     $(this).prop("disabled",true);
@@ -67,7 +72,8 @@ $(function() {
     }
   });
   
-  $("#createTask input").on('blur change', function() {
+  //call the validate on several actions
+  $("#createTask input").on('click tap blur change', function() {
     validate(false, $(this));
   });
     
@@ -86,10 +92,13 @@ $(function() {
     element = wholeForm ? $("#createTask input") : input;
     
     element.each(function() {
+      //declare variables
       var $this = $(this);
       pattern = new RegExp($this.attr('pattern'));
       id = $this.attr('id');
       selector = $('#' + id); 
+      
+      //do validation
       if(pattern == undefined) { //no pattern defined
         selector.addClass('error');
         count++;
@@ -117,12 +126,10 @@ $(function() {
       }
     });
     
+    //show tooltip
      $( "input.error" ).tooltip();
     
     return count;
-  }
-  
-  //show tooltips if there's an error
- 
+  } 
 });
 </script>

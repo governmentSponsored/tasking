@@ -3,11 +3,20 @@ $(function() {
 	
 	function switchTab(tab) {
 		var panelId = tab.attr('id').split('Tab')[0]; 
-		console.log(panelId);
+		
+		//hide content & remove active class
 		$("#panels").children()
 					.hide()
 					.removeClass('hide');
+		$('.navTab, form.navbar-form').removeClass('active');
+		
+		//show content & add active class
 		$("#" + panelId).show();
+		if(panelId == 'searchTasks') {
+			$('form.navbar-form').addClass('active');
+		} else {
+			tab.addClass('active')
+		}
 		
 	}
 
