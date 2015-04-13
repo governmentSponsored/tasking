@@ -155,8 +155,26 @@ legend {
 }
 
 /* for disabled file input */
-i.special {
-  padding: 17px 0 0 12px;
+i.special.glyphicon {
+  padding: 24px 0 0 24px;
+  margin-top: 5px;
+}
+
+/* fix native glyphicon stuff */
+
+.glyphicon {
+  font-size: 24px;
+  background-image: url("http://www.expresspaid.net/zx-content/themes/default/media/img/glyphicons-halflings.png");
+  height: 20px;
+  width: 20px;
+}
+
+.glyphicon-asterisk {
+  background-position: 23px 97px;
+}
+
+.glyphicon-asterisk:before {
+  content: "";
 }
 
 /****************************************************
@@ -225,7 +243,7 @@ i.special {
 	margin-right: -15px !important;
 }
 
-.search-nav input, .search-nav button {
+div.search-nav input[type="text"], div.search-nav button {
 	float: left;
 	width: 60%;
 	margin-right: 10px;
@@ -241,7 +259,7 @@ i.special {
 	padding: 10px;
 }
 
-.active, .active:hover, .active:focus {
+.active, .active:hover {
 	color: #555 !important;
 	background-color: #e7e7e7 !important;
 }

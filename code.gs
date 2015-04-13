@@ -4,7 +4,7 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.IFRAME) //has to be native so file upload works
+						    .setSandboxMode(HtmlService.SandboxMode.NATIVE) //has to be native so file upload works
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
@@ -64,7 +64,9 @@ function postTask(postObject) {
 	    },
 	    "contentType" : "application/json",
 	    "muteHttpExceptions" : true,
-	    "payload" : '{ "Type": "TaskData", "Name": "' + postObject.Name + 
+	    "payload" : '{ "Type": "TaskData", ' + 
+                        '"Name": "' + postObject.Name + 
+                        '", "Description": "' + postObject.Description + 
 	    				'", "Requester": "' + postObject.Requester + 
 	    				'", "DueDate": {"__type": "Date", "iso": "' + new Date(postObject.DueDate).toJSON() + 
 	    				'"}, "Owner": "' + postObject.Owner +

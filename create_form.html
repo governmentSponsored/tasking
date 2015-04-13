@@ -4,7 +4,7 @@
 		<div class="clear"></div>
 		
 		<div class="inner-addon left-addon">
-	    	<i class="glyphicon glyphicon-asterisk"></i>
+	    	<span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
 			<input type="text" id="name" title="Type the task name (at least two letters)" placeholder="Do the dishes"
 	          required pattern=".{0,}" class="form-control"/>
 	    </div>
@@ -41,6 +41,8 @@
 			<input type="number" id="priority" title="Type priority from 1-100 (higher number = higher priority)" placeholder="10" maxlength="3"
         	required pattern="^[0-9]*$" />
         </div>
+        
+        <div class="clear"></div>
         
         <div class="inner-addon left-addon">
 	    	<i class="glyphicon glyphicon-asterisk special"></i>
