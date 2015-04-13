@@ -1,10 +1,10 @@
 <script>
 $(function() {
   var name = $( "#name" ),
+  description = $( "#description" ),
   requester = $( "#requester" ),
   dueDate = $( "#dueDate" ),
   owner = $( "#owner" ),
-  creator = $( "#creator" ),
   assignee = $( "#assignee" ),
   priority = $( "#priority" ),
   createTaskForm = $( "#createTask" ),
@@ -42,10 +42,10 @@ $(function() {
   function onSuccessUpload(return_obj) {
     postObject = {
       Name: name.val(),
+      Description: description.val(),
       Requester: requester.val(),
       DueDate: dueDate.val(),
       Owner: owner.val(),
-      Creator: creator.val(),
       Assignee: assignee.val(),
       Priority: priority.val(),
       FileUrl: return_obj[1],
@@ -89,7 +89,7 @@ $(function() {
     $this;
     
     //check to see if validition is for the whole form or just single input.
-    element = wholeForm ? $("#createTask input") : input;
+    element = wholeForm ? $("#createTask [required]") : input;
     
     element.each(function() {
       //declare variables
@@ -127,7 +127,7 @@ $(function() {
     });
     
     //show tooltip
-     $( "input.error" ).tooltip();
+     $( "input.error, #description" ).tooltip();
     
     return count;
   } 

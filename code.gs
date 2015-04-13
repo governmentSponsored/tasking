@@ -4,7 +4,7 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.NATIVE) //has to be native so file upload works
+						    .setSandboxMode(HtmlService.SandboxMode.IFRAME) //has to be native so file upload works
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
@@ -68,7 +68,7 @@ function postTask(postObject) {
 	    				'", "Requester": "' + postObject.Requester + 
 	    				'", "DueDate": {"__type": "Date", "iso": "' + new Date(postObject.DueDate).toJSON() + 
 	    				'"}, "Owner": "' + postObject.Owner +
-	    				'", "Creator": "' + postObject.Creator +
+	    				'", "Creator": "' + currentUserEmail +
 	    				'", "Assignee": "' + postObject.Assignee +
 	    				'", "Priority": ' + postObject.Priority +
                         ', "FileUrl": "' + postObject.FileUrl +
@@ -139,6 +139,32 @@ function getMyTasks() {
 	  
 	  //query with key/value properties passed in
 	  var query = 'where={"Creator":"' + currentUserEmail + '"}'
+	  var encoded = encodeURIComponent(query);
+	  var queryUrl = url + '?' + encoded;
+	  
+	  var options = {
+	    "method" : "get",
+	    "headers" : {
+	      "X-Parse-Application-Id": appId,
+	      "X-Parse-REST-API-Key": restApi,
+	    }
+	  }
+	  
+	  var data = UrlFetchApp.fetch(queryUrl, options);
+	  var cleanData = JSON.parse(data).results;
+	  
+	  return cleanData;
+}
+
+function getMyAssignments() {
+	var properties = getKeys(),
+	appId = properties.appId,
+	restApi = properties.restApi,
+	class = properties.class,
+	url = 'https://api.parse.com/1/classes/' + class;
+	  
+	  //query with key/value properties passed in
+	  var query = 'where={"Assignee":"' + currentUserEmail + '"}'
 	  var encoded = encodeURIComponent(query);
 	  var queryUrl = url + '?' + encoded;
 	  
