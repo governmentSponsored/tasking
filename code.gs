@@ -55,13 +55,12 @@ function postTask(postObject) {
 	dueDate = Utilities.formatDate(new Date(postObject.DueDate), "America/New_York", "yyyy-MM-dd'T'HH:mm:ss'Z'"),
 	date = new Date(postObject.DueDate).toISOString();
 	
+	//deal with weird format for parse
 	var assigneeArray = postObject.Assignee.replace(/\s/g, '').split(','),
 	jsonAssigneeArray = [];
 	for(var i=0; i<assigneeArray.length; i++) {
 		jsonAssigneeArray.push('"' + assigneeArray[i] + '"');
 	}
-	
-	Logger.log(jsonAssigneeArray)
 	
     var options = {
 	    "method" : "post",
@@ -86,7 +85,6 @@ function postTask(postObject) {
 	    				'"}'
 	  }
 	  
-	Logger.log(options)
 	
 	  var data = UrlFetchApp.fetch(url, options);
       var json = data.getContentText();

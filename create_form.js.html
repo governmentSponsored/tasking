@@ -52,7 +52,6 @@ $(function() {
       FileName: return_obj[0]
     };
     
-    console.log(postObject.Assignee);
     google.script.run.withSuccessHandler(onSuccessCreate)
                        .withFailureHandler(onFailure)
                        .postTask(postObject);
