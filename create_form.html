@@ -32,8 +32,8 @@
 		
 		<div class="inner-addon left-addon">
 	    	<i class="glyphicon glyphicon-asterisk"></i>
-			<input type="email" id="assignee" title="Type the assignee's email address" placeholder="Assignee@gmail.com"
-        	required pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$" />
+			<input type="email" id="assignee" title="Type the assignee's email address. You may have more than one (seperated by commas)" placeholder="Assignee@gmail.com, Assignee2@gmail.com"
+        	required pattern="^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+,*[\W]*)+$" />
         </div>
 		
 		<div class="inner-addon left-addon">
