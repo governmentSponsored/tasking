@@ -4,7 +4,7 @@ var currentUserEmail = Session.getActiveUser().getEmail(),
 function doGet() {
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.NATIVE) //has to be native so file upload works
+						    .setSandboxMode(HtmlService.SandboxMode.IFRAME) //has to be native so file upload works
 						    .setTitle('Tasking'),
   properties = getKeys(),
   appId = properties.appId,
@@ -80,9 +80,7 @@ function postTask(postObject) {
 	    				'", "Creator": "' + currentUserEmail +
 	    				'", "Assignee": [' + jsonAssigneeArray +
 	    				'], "Priority": ' + postObject.Priority +
-                        ', "FileUrl": "' + postObject.FileUrl +
-                        '", "FileName": "' + postObject.FileName +
-	    				'"}'
+                        '}'
 	  }
 	  
 	
