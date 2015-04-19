@@ -31,8 +31,9 @@ $(function() {
   
   //reset the form and enable buttons
   function onSuccessCreate(return_obj) {
-    $(':input','#createTask').not(':button, :submit, :reset, :hidden')
+    $(':input','#createTask', 'select').not(':button, :submit, :reset, :hidden')
                              .val('')
+                             .removeClass('error')
                              .removeAttr('checked')
                              .removeAttr('selected');
     
@@ -116,7 +117,7 @@ $(function() {
           } else { //do some actual validation
             value = $this.val();
             result = pattern.test(value);
-            if(!result) {//does not match pattern.
+            if(!result && $this.prop('required')) {//does not match pattern.
               selector.addClass('error');
               count++;
             } else { //all ok
