@@ -4,221 +4,273 @@
 *                  Create Form                      *
 *                                                   *
 ****************************************************/
-  input {
-    width: 100%;
-  }
-  
-  #createTask fieldset {
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: aliceblue;
-  }
-  
-  legend {
-    text-align: center;
-  }
-    
-  div.ui-datepicker{
-   font-size:10px;
-  }
-  
-  #createTask input[type=email], #createTask input[type=text], #createTask input[type=number] {
-    width: 95%;
-    border: 1px solid #CCC;
-    border-radius: 4px;
-    margin: 5px;
-    height: 40px;
-    padding-left: 8px;
-    display: block;
-    font-size: 14px;
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
-  }
-  
-  #createTask button.btn {
-    cursor:pointer;
-    padding: 14px 50px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    font-size: 16px;
-    margin: 2px;
-    width: 95%;
-    margin-left: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-  
-  button.btn {
-  	color: #FFFFFF;
-  	background: #3D3D3D;
-  	border:1px solid #6E7174;
-  }
-  
-  #createTask button.btn:hover, 
-  #createTask button.btn:focus, 
-  #createTask button.btn:active {
-    color: #333333;
-    background-color: #e6e6e6;
-    border-color: #adadad;
-  }
-  
-  #uploadFileName {
-    width: 83.5%;
-    float: left;
-    margin: 5px;
-    height: 40px;
-    padding: 9px;
-    border-radius: 4px;
-    border: 1px solid #6E7174;
-  }
-  
-  .fileUpload {
-  position: relative;
-    overflow: hidden;
-    width: 10%;
-    float: left;
-    border: 1px solid rgb(204, 204, 204);
-    margin: 5px;
-    height: 40px;
-    background: rgb(61, 61, 61);
-    border-radius: 4px;
-    padding: 9px;
-    color: white;
-    text-align: center;
-  }
-  
-  .fileUpload input.upload {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    padding: 0;
-    font-size: 20px;
-    cursor: pointer;
-    opacity: 0;
-    filter: alpha(opacity=0);
-    cursor: pointer;
-  }
-  
-  #createTask input.error {
-    border: 1px solid #FA787E;
-    border-radius: 5px; 
-  }
-  
-  div.clear {
-    clear: both;
-  }
-  
-  fieldset {
-  	border-radius: 5px;
-  	padding-left: 20px;
-  	border: 1px solid rgb(235, 235, 228);
-  	margin-top: 20px;
-  }
-  
-  legend {
-  	float: left;
-  	margin: 5px;
-  	border: none;
-  }
-  
+input {
+	width: 100%;
+}
+
+#createTask fieldset {
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: aliceblue;
+}
+
+legend {
+	text-align: center;
+	width: 95%;
+	float: left;
+	margin: 5px;
+}
+
+div.ui-datepicker {
+	font-size: 10px;
+}
+
+#createTask input[type=email], 
+#createTask input[type=text], 
+#createTask input[type=number],
+#createTask textarea,
+#createTask select {
+	width: 95%;
+	border: 1px solid #CCC;
+	border-radius: 4px;
+	margin: 5px;
+	height: 40px;
+	padding-left: 8px;
+	display: block;
+	font-size: 14px;
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+
+textarea#description {
+	padding: 8px 0 0 25px;
+}
+
+#createTask select {
+	padding-left: 20px;
+}
+
+#createTask button.btn {
+	cursor: pointer;
+	padding: 14px 50px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	font-size: 16px;
+	margin: 2px;
+	width: 95%;
+	margin-left: 5px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+button.btn {
+	color: #FFFFFF;
+	background: #3D3D3D;
+	border: 1px solid #6E7174;
+}
+
+#createTask button.btn:hover, #createTask button.btn:focus, #createTask button.btn:active
+	{
+	color: #333333;
+	background-color: #e6e6e6;
+	border-color: #adadad;
+}
+
+#uploadFileName {
+	width: 83.5%;
+	float: left;
+	margin: 5px;
+	height: 40px;
+	padding: 9px;
+	border-radius: 4px;
+	border: 1px solid #6E7174;
+}
+
+.fileUpload {
+	position: relative;
+	overflow: hidden;
+	width: 10%;
+	float: left;
+	border: 1px solid rgb(204, 204, 204);
+	margin: 5px;
+	height: 40px;
+	background: rgb(61, 61, 61);
+	border-radius: 4px;
+	padding: 9px;
+	color: white;
+	text-align: center;
+}
+
+.fileUpload input.upload {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+	font-size: 20px;
+	cursor: pointer;
+	opacity: 0;
+	filter: alpha(opacity = 0);
+	cursor: pointer;
+}
+
+#createTask input.error,
+#createTask select.error {
+	border: 1px solid #FA787E;
+	border-radius: 5px;
+}
+
+div.clear {
+	clear: both;
+}
+
+div.more-info {
+	padding-left: 8px;
+}
+
+fieldset {
+	border-radius: 5px;
+	padding-left: 20px;
+	border: 1px solid rgb(235, 235, 228);
+	margin-top: 20px;
+}
+
+/*** for glyphicons ***/
+/* enable absolute positioning */
+.inner-addon {
+	position: relative;
+}
+
+/* style icon */
+.inner-addon .glyphicon {
+	position: absolute;
+	padding: 12px;
+	pointer-events: none;
+}
+
+/* align icon */
+.left-addon .glyphicon {
+	left: 0px;
+}
+
+.right-addon .glyphicon {
+	right: 0px;
+}
+
+/* add padding  */
+.left-addon input {
+	padding-left: 25px !important;
+}
+
+.right-addon input {
+	padding-right: 30px;
+}
+
+/* for disabled file input */
+i.special.glyphicon {
+  padding: 24px 0 0 24px;
+  margin-top: 5px;
+}
+
+
 /****************************************************
 *                                                   *
 *                  Navigation                       *
 *                                                   *
 ****************************************************/
-  .navbar-header-menu {
-     float: left;
-   }
- 
-  .navbar-header-menu > .navbar-nav {
-     float: left;
-     margin: 0;
-  }
- 
-  .navbar-header-menu > .navbar-nav > li {
-     float: left;
-  }
- 
-  .navbar-header-menu > .navbar-nav > li > a {
-     padding-top: 15px;
-     padding-bottom: 15px;
-     line-height: 24px;
-  }
- 
-  .navbar-header-menu > .navbar-nav .open .dropdown-menu {
-      position: absolute;
-      float: left;
-      width: auto;
-      margin-top: 0;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border: 1px solid rgba(0,0,0,.15);
-      -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
-      box-shadow: 0 6px 12px rgba(0,0,0,.175);
-  }
+.navbar-header-menu {
+	float: left;
+}
 
-  .navbar-header-menu > .navbar-form {
-      float: left;
-      width: auto;
-      padding-top: 0;
-      padding-bottom: 0;
-      margin-right: 0;
-      margin-left: 0;
-      border: 0;
-      -webkit-box-shadow: none;
-      box-shadow: none;
-  }
+.navbar-header-menu>.navbar-nav {
+	float: left;
+	margin: 0;
+}
 
-  .navbar-header-menu > .navbar-form > .form-group {
-      display: inline-block;
-      margin-bottom: 0;
-      vertical-align: middle;
-  }
+.navbar-header-menu>.navbar-nav>li {
+	float: left;
+}
 
-  .navbar-header-menu > .navbar-left {
-      float: left;
-  }
+.navbar-header-menu>.navbar-nav>li>a {
+	padding-top: 15px;
+	padding-bottom: 15px;
+	line-height: 24px;
+}
 
-  .navbar-header-menu > .navbar-right {
-      float: right !important;
-  }
+.navbar-header-menu>.navbar-nav .open .dropdown-menu {
+	position: absolute;
+	float: left;
+	width: auto;
+	margin-top: 0;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, .15);
+	-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+}
 
-  .navbar-header-menu > *.navbar-right:last-child {
-      margin-right: -15px !important;
-  }
-  
-  .search-nav input, .search-nav button {
-    float: left;
-    width: 60%;
-    margin-right: 10px;
-  }
-  
-  .search-nav button {
-    max-width: 70px;
-  }
-  
-  .navbar-default .navbar-form {
-  	border: none;
-  	margin: 0px;
-  	padding: 10px;
-  }
-  
-  .active, .active:hover, .active:focus {
-  	color: #555 !important;
-		background-color: #e7e7e7 !important;
-  }
+.navbar-header-menu>.navbar-form {
+	float: left;
+	width: auto;
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-right: 0;
+	margin-left: 0;
+	border: 0;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.navbar-header-menu>.navbar-form>.form-group {
+	display: inline-block;
+	margin-bottom: 0;
+	vertical-align: middle;
+}
+
+.navbar-header-menu>.navbar-left {
+	float: left;
+}
+
+.navbar-header-menu>.navbar-right {
+	float: right !important;
+}
+
+.navbar-header-menu>*.navbar-right:last-child {
+	margin-right: -15px !important;
+}
+
+div.search-nav input[type="text"], div.search-nav button {
+	float: left;
+	width: 60%;
+	margin-right: 10px;
+}
+
+.search-nav button {
+	max-width: 70px;
+}
+
+.navbar-default .navbar-form {
+	border: none;
+	margin: 0px;
+	padding: 10px;
+}
+
+.active, .active:hover {
+	color: #555 !important;
+	background-color: #e7e7e7 !important;
+}
 /****************************************************
 *                                                   *
 *                  My Tasks                         *
 *                                                   *
 ****************************************************/
-	#myTasksTable {
-		margin: auto;
-		width: 95%;
-	}
-	.odd {
-		background-color: #f9f9f9;
-	}
+#myTasksTable {
+	margin: auto;
+	width: 95%;
+}
+
+.odd {
+	background-color: #f9f9f9;
+}
 </style>

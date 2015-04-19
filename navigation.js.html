@@ -20,7 +20,8 @@ $(function() {
 		
 	}
 
-	$('.navTab').on('click tap', function() {
+	$('.navTab').on('click tap', function(e) {
+		e.preventDefault();
 		switchTab($(this));
 	});
 });

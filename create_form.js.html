@@ -1,23 +1,27 @@
 <script>
 $(function() {
   var name = $( "#name" ),
+  description = $( "#description" ),
   requester = $( "#requester" ),
   dueDate = $( "#dueDate" ),
   owner = $( "#owner" ),
-  creator = $( "#creator" ),
   assignee = $( "#assignee" ),
   priority = $( "#priority" ),
-  createTaskForm = $( "#createTask" ),
+  status = $( "#status" ),
+  activity = $( "#activity" ),
+  tags = $( "#tags" ),
+//commented out until fixed for iframe
+  //createTaskForm = $( "#createTask" ),
   submitButton = $( "#postTask" ),
   postObject = {};
     
   //date picker
   dueDate.datepicker();
-  
+//commented out until fixed for iframe
   //show text of file to be uploaded
-  document.getElementById("documentUpload").onchange = function () {
+  /*document.getElementById("documentUpload").onchange = function () {
     document.getElementById("uploadFileName").value = this.value.split("fakepath\\")[1];
-  };
+  };*/
   
   //display error in log, enable buttons
   function onFailure(return_obj) {
@@ -29,8 +33,9 @@ $(function() {
   
   //reset the form and enable buttons
   function onSuccessCreate(return_obj) {
-    $(':input','#createTask').not(':button, :submit, :reset, :hidden')
+    $(':input','#createTask', 'select').not(':button, :submit, :reset, :hidden')
                              .val('')
+                             .removeClass('error')
                              .removeAttr('checked')
                              .removeAttr('selected');
     
@@ -39,17 +44,18 @@ $(function() {
   }
   
   //rest of form upload
-  function onSuccessUpload(return_obj) {
+  function onSuccessUpload() {
     postObject = {
       Name: name.val(),
+      Description: description.val(),
       Requester: requester.val(),
       DueDate: dueDate.val(),
       Owner: owner.val(),
-      Creator: creator.val(),
       Assignee: assignee.val(),
       Priority: priority.val(),
-      FileUrl: return_obj[1],
-      FileName: return_obj[0]
+      Status: status.val(),
+      Activity: activity.val(),
+      Tags: tags.val()
     };
     
     google.script.run.withSuccessHandler(onSuccessCreate)
@@ -66,14 +72,16 @@ $(function() {
     if(count > 0) {
       $(this).prop("disabled",false);
     } else {
-      google.script.run.withSuccessHandler(onSuccessUpload)
+    onSuccessUpload();
+//commented out until fixed for iframe
+      /*google.script.run.withSuccessHandler(onSuccessUpload)
                        .withFailureHandler(onFailure)
-                       .uploadFile(document.getElementById("createTask"));
+                       .uploadFile(document.getElementById("createTask"));*/
     }
   });
   
   //call the validate on several actions
-  $("#createTask input").on('blur change', function() {
+  $("#createTask input, #createTask select").on('blur change', function() {
     validate(false, $(this));
   });
     
@@ -89,7 +97,7 @@ $(function() {
     $this;
     
     //check to see if validition is for the whole form or just single input.
-    element = wholeForm ? $("#createTask input") : input;
+    element = wholeForm ? $("#createTask [required]") : input;
     
     element.each(function() {
       //declare variables
@@ -97,13 +105,13 @@ $(function() {
       pattern = new RegExp($this.attr('pattern'));
       id = $this.attr('id');
       selector = $('#' + id); 
-      
+
       //do validation
       if(pattern == undefined) { //no pattern defined
         selector.addClass('error');
         count++;
       } else {            
-          if(!$this.val()) { //no value
+          if(!$this.val() && $this.prop('required')) { //no value
             selector.addClass('error');
             count++;
             if(id == 'documentUpload') { //deal with weird upload styling
@@ -113,7 +121,7 @@ $(function() {
           } else { //do some actual validation
             value = $this.val();
             result = pattern.test(value);
-            if(!result) {//does not match pattern.
+            if(!result && $this.prop('required')) {//does not match pattern.
               selector.addClass('error');
               count++;
             } else { //all ok
@@ -127,7 +135,7 @@ $(function() {
     });
     
     //show tooltip
-     $( "input.error" ).tooltip();
+     $( "input.error, #description, select" ).tooltip();
     
     return count;
   } 
