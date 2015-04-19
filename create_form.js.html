@@ -8,6 +8,7 @@ $(function() {
   assignee = $( "#assignee" ),
   priority = $( "#priority" ),
   status = $( "#status" ),
+  activity = $( "#activity" ),
 //commented out until fixed for iframe
   //createTaskForm = $( "#createTask" ),
   submitButton = $( "#postTask" ),
@@ -51,7 +52,8 @@ $(function() {
       Owner: owner.val(),
       Assignee: assignee.val(),
       Priority: priority.val(),
-      Status: status.val()
+      Status: status.val(),
+      Activity: activity.val()
     };
     
     google.script.run.withSuccessHandler(onSuccessCreate)
@@ -107,7 +109,7 @@ $(function() {
         selector.addClass('error');
         count++;
       } else {            
-          if(!$this.val()) { //no value
+          if(!$this.val() && $this.prop('required')) { //no value
             selector.addClass('error');
             count++;
             if(id == 'documentUpload') { //deal with weird upload styling

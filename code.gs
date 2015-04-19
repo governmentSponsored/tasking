@@ -51,9 +51,8 @@ function postTask(postObject) {
 	appId = properties.appId,
 	restApi = properties.restApi,
 	class = properties.class,
-	url = 'https://api.parse.com/1/classes/' + class,
-	dueDate = Utilities.formatDate(new Date(postObject.DueDate), "America/New_York", "yyyy-MM-dd'T'HH:mm:ss'Z'"),
-	date = new Date(postObject.DueDate).toISOString();
+	url = 'https://api.parse.com/1/classes/' + class;
+	
 	
 	//deal with weird format for parse
 	var assigneeArray = postObject.Assignee.replace(/\s/g, '').split(','),
@@ -80,6 +79,7 @@ function postTask(postObject) {
 	    				'"}, "Owner": "' + postObject.Owner +
 	    				'", "Creator": "' + currentUserEmail +
 	    				'", "Assignee": [' + jsonAssigneeArray +
+	    				'], "Activity": [{ "text" : "' + postObject.Activity + '", "date" : "' + new Date() +'" }' + 
 	    				'], "Priority": ' + postObject.Priority +
                         '}'
 	  }
