@@ -77,7 +77,7 @@ $(function() {
   });
   
   //call the validate on several actions
-  $("#createTask input").on('blur change', function() {
+  $("#createTask input, #createTask select").on('blur change', function() {
     validate(false, $(this));
   });
     
