@@ -74,6 +74,7 @@ function postTask(postObject) {
 	    "payload" : '{ "Type": "TaskData", ' + 
                         '"Name": "' + postObject.Name + 
                         '", "Description": "' + postObject.Description + 
+                        '", "Status": "' + postObject.Status +
 	    				'", "Requester": "' + postObject.Requester + 
 	    				'", "DueDate": {"__type": "Date", "iso": "' + new Date(postObject.DueDate).toJSON() + 
 	    				'"}, "Owner": "' + postObject.Owner +
