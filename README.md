@@ -1,5 +1,5 @@
 # Tasking
-Google Apps Script (GAS) based tasking application with a Parse NoSQL back-end, and jQuery. jQuery as as the controller, GAS as the view, and Parse as the model.
+Google Apps Script (GAS) based tasking application with a Parse cloud NoSQL database, and jQuery.
 
 #Demo
 [Here is the latest stable version of the code](https://script.google.com/macros/s/AKfycbzyVLq-EpbqWmYDdzUbMNPxMbXNPt3GjEL6WBcol4WAQRChDC8/exec)
