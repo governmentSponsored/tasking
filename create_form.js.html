@@ -9,6 +9,7 @@ $(function() {
   priority = $( "#priority" ),
   status = $( "#status" ),
   activity = $( "#activity" ),
+  tags = $( "#tags" ),
 //commented out until fixed for iframe
   //createTaskForm = $( "#createTask" ),
   submitButton = $( "#postTask" ),
@@ -53,7 +54,8 @@ $(function() {
       Assignee: assignee.val(),
       Priority: priority.val(),
       Status: status.val(),
-      Activity: activity.val()
+      Activity: activity.val(),
+      Tags: tags.val()
     };
     
     google.script.run.withSuccessHandler(onSuccessCreate)

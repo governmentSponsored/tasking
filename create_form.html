@@ -62,9 +62,8 @@
         	required pattern="^[0-9]*$" />
         </div-->
         
-        <legend>The Latest Info</legend>
+        <legend>Extra Info</legend>
         <div class="clear"></div>
-
         
         <div class="inner-addon left-addon">
 	    	<i class="glyphicon glyphicon-asterisk"></i>
@@ -74,6 +73,11 @@
 				<option>Started</option>
 				<option>Finished</option>
 			</select>
+        </div>
+
+        <div class="inner-addon left-addon">
+			<input type="text" id="tags" title="Type the tags. You may have more than one (seperated by commas)" placeholder="Tags (example: household chores, cleaning, kitchen)"
+        	pattern="(\w+)(,\s*\w+)*" />
         </div>
         
         <div class="inner-addon left-addon">

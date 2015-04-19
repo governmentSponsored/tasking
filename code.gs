@@ -54,11 +54,17 @@ function postTask(postObject) {
 	url = 'https://api.parse.com/1/classes/' + class;
 	
 	
-	//deal with weird format for parse
+	//deal with weird array format for parse
 	var assigneeArray = postObject.Assignee.replace(/\s/g, '').split(','),
 	jsonAssigneeArray = [];
 	for(var i=0; i<assigneeArray.length; i++) {
 		jsonAssigneeArray.push('"' + assigneeArray[i] + '"');
+	}
+	
+	var tagsArray = postObject.Tags.replace(/\s/g, '').split(','),
+	jsonTagsArray = [];
+	for(var i=0; i<tagsArray.length; i++) {
+		jsonTagsArray.push('"' + tagsArray[i] + '"');
 	}
 	
     var options = {
@@ -79,6 +85,7 @@ function postTask(postObject) {
 	    				'"}, "Owner": "' + postObject.Owner +
 	    				'", "Creator": "' + currentUserEmail +
 	    				'", "Assignee": [' + jsonAssigneeArray +
+	    				'], "Tags": [' + jsonTagsArray +
 	    				'], "Activity": [{ "text" : "' + postObject.Activity + '", "date" : "' + new Date() +'" }' + 
 	    				'], "Priority": ' + postObject.Priority +
                         '}'
