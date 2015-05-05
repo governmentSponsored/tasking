@@ -1,7 +1,12 @@
 var currentUserEmail = Session.getActiveUser().getEmail(),
-	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
+	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec",
+    pageToLoad = 'myTasks';
 
-function doGet() {
+function doGet(e) {
+  if(e.queryString != '') {
+    pageToLoad = e.queryString;
+  }
+  
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
 						    .evaluate()
 						    .setSandboxMode(HtmlService.SandboxMode.IFRAME) //has to be native so file upload works
@@ -34,6 +39,11 @@ function doGet() {
 function getContent(filename) {
 	var html = HtmlService.createTemplateFromFile(filename).getRawContent();
 	return html;
+}
+
+function getPageToLoad() {
+  Logger.log('the page to load is: ' + pageToLoad);
+  return pageToLoad;
 }
 
 function getKeys() {
