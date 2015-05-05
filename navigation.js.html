@@ -2,7 +2,12 @@
 $(function() {
 	
 	function switchTab(tab) {
-		var panelId = tab.attr('id').split('Tab')[0]; 
+		try {
+          var panelId = tab.attr('id').split('Tab')[0];
+        } catch(e) {
+          var panelId = tab;
+          var navTabId = tab + 'Tab';
+        }
 		
 		//hide content & remove active class
 		$("#panels").children()
@@ -15,11 +20,30 @@ $(function() {
 		if(panelId == 'searchTasks') {
 			$('form.navbar-form').addClass('active');
 		} else {
-			tab.addClass('active')
+			if(navTabId) {
+				$('#' + navTabId).addClass('active');
+			} else {
+				tab.addClass('active')
+			}
 		}
 		
 	}
-
+    
+    function onSuccess(return_obj) {
+      console.log(return_obj);
+      switchTab(return_obj);
+    }
+    
+    function onFailure(return_obj) {
+      console.log('failed!');
+      console.log(return_obj.message);
+    }
+    
+    //do the url parameter onload fun stuff
+    google.script.run.withSuccessHandler(onSuccess)
+	                 .withFailureHandler(onFailure)
+	                 .getPageToLoad();
+    
 	$('.navTab').on('click tap', function(e) {
 		e.preventDefault();
 		switchTab($(this));
