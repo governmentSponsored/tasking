@@ -29,20 +29,13 @@ $(function() {
 		
 	}
     
-    function onSuccess(return_obj) {
-      console.log(return_obj);
-      switchTab(return_obj);
+    //do url parameter switch
+    var params = $('#urlParameters').text();
+    if(params != 'create') {
+    	var page = params.split('page=')[1];
+    	switchTab(page);
     }
-    
-    function onFailure(return_obj) {
-      console.log('failed!');
-      console.log(return_obj.message);
-    }
-    
-    //do the url parameter onload fun stuff
-    google.script.run.withSuccessHandler(onSuccess)
-	                 .withFailureHandler(onFailure)
-	                 .getPageToLoad();
+    console.log(params);
     
 	$('.navTab').on('click tap', function(e) {
 		e.preventDefault();

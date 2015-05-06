@@ -1,20 +1,19 @@
 var currentUserEmail = Session.getActiveUser().getEmail(),
-	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec",
-    pageToLoad = 'myTasks';
+	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
 
-function doGet(e) {
-  if(e.queryString != '') {
-    pageToLoad = e.queryString;
-  }
-  
-  var htmlPage = HtmlService.createTemplateFromFile('dashboard.html')
-						    .evaluate()
-						    .setSandboxMode(HtmlService.SandboxMode.IFRAME) //has to be native so file upload works
-						    .setTitle('Tasking'),
-  properties = getKeys(),
+function doGet(e) {  
+  var htmlPage = HtmlService.createTemplateFromFile('dashboard.html');
+  var properties = getKeys(),
   appId = properties.appId,
   restApi = properties.restApi,
   url = 'https://api.parse.com/1/events/AppOpened';
+  
+  //do this to set url parameter value(s) to htmlPage so it can be read within the application
+  if(e.queryString != undefined) {
+	  htmlPage.data = e.queryString;
+  } else {
+	  htmlPage.data = 'create';	  
+  }
   
   //track app opens
   var options = {
@@ -33,17 +32,14 @@ function doGet(e) {
   var json = data.getContentText();
   var cleanData = JSON.parse(json);
   
-  return htmlPage;
+  return htmlPage.evaluate()
+  				 .setSandboxMode(HtmlService.SandboxMode.IFRAME) //has to be native so file upload works
+  				 .setTitle('Tasking');
 }
 
 function getContent(filename) {
 	var html = HtmlService.createTemplateFromFile(filename).getRawContent();
 	return html;
-}
-
-function getPageToLoad() {
-  Logger.log('the page to load is: ' + pageToLoad);
-  return pageToLoad;
 }
 
 function getKeys() {
