@@ -9,9 +9,16 @@ function doGet(e) {
   
   //do this to set url parameter value(s) to htmlPage so it can be read within the application
   if(e.queryString != undefined) {
-	  htmlPage.page = e.queryString;
+	  if(e.queryString.indexOf('&') === -1) {
+		  htmlPage.page = e.queryString.split('page=')[1];
+		  htmlPage.query = '';
+	  } else {
+		  htmlPage.query = e.queryString.split('query=')[1];
+		  htmlPage.page = e.queryString.split('page=')[1].split('&')[0];
+	  }
   } else {
-	  htmlPage.page = 'create';	  
+	  htmlPage.page = 'create';
+	  htmlPage.query = '';
   }
   
   //track app opens

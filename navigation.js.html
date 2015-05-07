@@ -30,12 +30,13 @@ $(function() {
 	}
     
     //do url parameter switch
-    var params = $('#urlParameters').text();
-    if(params != 'create') {
-    	var page = params.split('page=')[1];
+    var page = $('#pageParameter').text();
+    var query = $('#queryParameter').text();
+    if(page != 'create') {
     	switchTab(page);
     }
-    console.log(params);
+    console.log(page);
+    console.log(query);
     
 	$('.navTab').on('click tap', function(e) {
 		e.preventDefault();
