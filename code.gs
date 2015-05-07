@@ -1,5 +1,4 @@
-var currentUserEmail = Session.getActiveUser().getEmail(),
-	appLink = "https://script.google.com/a/macros/bia.gov/s/AKfycbwcvcmIJp1j66whrQUr1raD8_7J67_aCyAQMogk8BOXGH1taZ4/exec";
+var currentUserEmail = Session.getActiveUser().getEmail();
 
 function doGet(e) {  
   var htmlPage = HtmlService.createTemplateFromFile('dashboard.html');
@@ -10,9 +9,9 @@ function doGet(e) {
   
   //do this to set url parameter value(s) to htmlPage so it can be read within the application
   if(e.queryString != undefined) {
-	  htmlPage.data = e.queryString;
+	  htmlPage.page = e.queryString;
   } else {
-	  htmlPage.data = 'create';	  
+	  htmlPage.page = 'create';	  
   }
   
   //track app opens
