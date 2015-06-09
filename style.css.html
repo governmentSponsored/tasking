@@ -282,13 +282,95 @@ div.search-nav input[type="text"], div.search-nav button {
 *                  My Tasks                         *
 *                                                   *
 ****************************************************/
-#myTasksTable, #searchTable {
+#task-collections-list .list-group-item{
+    cursor: pointer;
+}
+    
+#myTasksTable {
 	margin: auto;
 	width: 95%;
-	margin-top: 60px;
 }
 
 .odd {
 	background-color: #f9f9f9;
+}
+    
+span.glyphicon-star-empty {
+    font-size: 1.8em;
+    vertical-align: middle;
+}
+    
+span.glyphicon-star {
+    font-size: 1.8em;
+    vertical-align: middle;
+    color: #eeee00;
+}
+    
+.list-group-item{
+    padding: 9px 9px 12px 9px;
+}
+    
+.card .nav{
+    margin: 2px 6px 12px 6px;
+}
+    
+.card .nav>li{
+    cursor: pointer;
+}
+    
+.card .nav>li>a{
+    position: relative;
+    display: block;
+    padding: 6px 6px;
+}
+    
+.list-group .list-group-item:nth-child(even){
+    background: #fbfbfb;
+}
+    
+.card-title{
+    margin: 0 0 6px 0;
+}
+    
+.card-title-create-date{
+    color: #999;
+    text-align: right;
+    font-style: italic;
+}
+    
+.card-content{
+    padding: 0 6px 0 6px;
+}
+    
+.status-indicator-new{
+    font-size: 82.5%;
+    font-weight: bold;
+    color: #4444ff;
+}
+    
+.card-edit table{
+    margin-bottom: 0;
+}
+    
+.add-row{
+    padding: 9px 5px;
+    margin-bottom: 20px;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+    
+.btn-remove-row{
+    color: red;
+    cursor: pointer;
+}
+    
+.btn-add-assignee-row{
+    color: green;
+    cursor: pointer;
+}
+    
+.btn-move-up, .btn-move-down{
+    display: block;
+    cursor: pointer;
 }
 </style>
