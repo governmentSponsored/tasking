@@ -1,66 +1,464 @@
 <script>
+//I changed something
 $(function() {
-  function addData(data) {
-  	var tableBody = $("#myTasksTable").find('tbody'),
-  	i=0,
-  	len=data.length;
-  	
-  	for(i;i<len;i++) {
-	  	tableBody
-	  		.append($('<tr>')
-	  			.append($('<td class="myTaskName">')
-	  				.append($('<p>' + data[i].Name + '</p>')
-	  				)
-	  			)
-	  			.append($('<td class="myTaskDueDate">')
-	  				.append($('<p>' + data[i].DueDate.iso + '</p>')
-	  				)
-	  			)
-	  			.append($('<td class="myTaskPriority">')
-	  				.append($('<p>' + data[i].Priority + '</p>')
-	  				)
-	  			)
-	  			.append($('<td class="myTaskFiles">')
-	  				.append($('<p><a href="' + data[i].FileUrl + '" target="_blank">'  + data[i].FileName + '</a></p>')
-	  				)
-	  			)
-	  			.append($('<td class="myTaskRequester">')
-	  				.append($('<p>' + data[i].Requester + '</p>')
-	  				)
-	  			)
-	  			.append($('<td class="myTaskCreator">')
-	  				.append($('<p>' + data[i].Creator + '</p>')
-	  				)
-	  			)
-	  			.append($('<td class="myTaskDateCreated">')
-	  				.append($('<p>' + data[i].createdAt + '</p>')
-	  				)
-	  			)
-	  		);
-  	}
-  	
-  	//since nth-child isn't supported...
-  	$( "#myTasksTable tr:odd" ).addClass('odd');
-  }
-  
-  //boo
-  function onFailure(return_obj) {
-    console.log('failed!');
-    console.log(return_obj.message);
-  }
-  
-  //yay
-  function onSuccess(return_obj) {
-  	var numberOfTotalTasks = return_obj.length,
-  	textForNav = ' (' + numberOfTotalTasks + ')';
-  	$("#numberofTasks").text(textForNav);
-  	
-    addData(return_obj);
+  $( '#task-collections-list' ).on( "click", '.list-group-item', function() {
+    //Set correct collection to active state
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
     
-  }
+    //Show corresponding collections items
+    var currentClass = '.' + $(this).find('span').eq(1).prop('class');
+    $( '#task-list' ).find(currentClass).siblings().hide();
+    $( '#task-list' ).find(currentClass).show();
+  });
 
-	google.script.run.withSuccessHandler(onSuccess)
-	                 .withFailureHandler(onFailure)
-	                 .getMyTasks();
+  $( "body" ).on( "click", '.card-nav-pills .nav-pills li', function() {
+    //Set correct Pill to active state
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
+    
+    //Show corresponding pill's content
+    var index = $(this).index();
+    $(this).closest('section').find('.card-tab' ).addClass("hidden");
+    $(this).closest('section').find('.card-tab' ).eq(index).removeClass("hidden");
+  });
+  
+  $( "#task-list" ).on( "click", '.btn-edit-task', function() {    
+    //Show edit form for current tab
+    var $curTab = $(this).closest('section').find('.card-tab:not(.hidden)');
+    $curTab.find('.card-view').toggleClass('hidden');
+    $curTab.find('.card-edit').toggleClass('hidden');
+  });
+  
+  $( "#task-list" ).on( "click", '.btn-cancel-edit', function() {    
+    //Show edit form for current tab
+    var $curTab = $(this).closest('.card-tab');
+    var tabData = $curTab.data().tabdata;
+    if($curTab.hasClass('overview-tab')){
+      $curTab.html(getOverviewTab(tabData));
+    } else if($curTab.hasClass('assignees-tab')){
+      $curTab.html(getAssigneesTab(tabData));
+    }
+  });
+  
+  $( "#task-list" ).on( "click", '.btn-remove-row', function() {  
+    //Remove selected row, table agnostic
+    var $curRow = $(this).closest('tr');
+    var $curTable = $(this).closest('table');
+    
+    $curRow.remove();
+    refreshTableRowNums($curTable);
+  });
+  
+  function refreshTableRowNums($table){
+    $table.find('tbody').find('tr').each(function(i) {
+      $( this ).find('td').eq(1).text((i+1));
+    });
+  }
+  
+  $( "#task-list" ).on( "click", '.btn-add-assignee-row', function() {  
+    //Add a blank row to the table so the user can enter a new assignee
+    var $curTable = $(this).parent().prev().find('tbody');
+    var rowNum = ($curTable.find('tr').length+1);
+    $curTable.append(getNewAssigneeRowHtml(rowNum));
+  });
+  
+  $( "#task-list" ).on( "click", '.btn-move-up', function() {  
+    //Move current item up
+    var $curTable = $(this).closest('table');
+    $(this).closest('tr').insertBefore($(this).closest('tr').prev());
+    refreshTableRowNums($curTable);
+  });
+  
+  $( "#task-list" ).on( "click", '.btn-move-down', function() {  
+    //Move current item down
+    var $curTable = $(this).closest('table');
+    $(this).closest('tr').insertAfter($(this).closest('tr').next());
+    refreshTableRowNums($curTable);
+  });
+  
+  function buildCardsListGroup(){  
+    for(var task in tasks){
+      var $currTask = $( "#task-list" ).append(
+                          createCard(
+                            tasks[task].title, tasks[task].description, tasks[task].dueDate, tasks[task].assignees, 
+                            tasks[task].status, tasks[task].documents, tasks[task].activityLog, tasks[task].createdDate,
+                            tasks[task].creator, tasks[task].owner, tasks[task].priority
+                          )
+                        );
+      $currTask.find('.overview-tab').data({ tabdata: tasks[task].description });
+      $currTask.find('.assignees-tab').data({ tabdata: tasks[task].assignees });
+    }
+    updateCollectionCounts();
+    //init to owned
+    $( '#task-list' ).find('.owned').siblings().hide();
+    $( '#task-list' ).find('.owned').show();
+  }
+  
+  function updateCollectionCounts(){
+    //My Tasks
+    $( '#task-collections-list' ).find('li').eq(0).find('.badge').text($( '#task-list' ).find('.owned').length);
+    //My Assignments
+    $( '#task-collections-list' ).find('li').eq(1).find('.badge').text($( '#task-list' ).find('.assigned').length);
+  }
+  
+  function createCard(title, description, dueDate, assignees, status, documents, 
+                      activityLog, createdDate, creator, owner, priority){
+    var classes = setTaskClasses(status, owner, assignees);
+    var html = '<div class="list-group-item card ' + classes + '">'+
+               '  <div>';
+        html += getCardTitle(title, assignees, status, dueDate);
+        html += '    <section>';
+        html += getCardToolbar();
+        html += '      <div class="tabs-container">';
+        html += getTabWrapper(getOverviewTab(description), 'overview-tab');        
+        html += getTabWrapper(getAssigneesTab(assignees), 'assignees-tab', 'hidden');
+        html += getDocumentsTab(documents);
+        html += getActivityLogTab(activityLog);
+        html += getDetailsTab(createdDate, creator, owner, priority);
+        html += '      </div>'+ //End tabs container
+                '    </section>'+
+                '  </div>'+
+                '</div>';
+        return html;
+  }
+  
+  function setTaskClasses(status, owner, assignees){
+    var classes = '';
+    
+    classes += status.toLowerCase();
+    if(owner==currentUser){
+      classes += " owned";
+    }
+    for(var assignee in assignees){
+      if(assignees[assignee].email==currentUser){
+        classes += " assigned";
+      }
+    }
+    
+    return classes;
+  }
+  
+  function getCardTitle(title, assignees, status, dueDate){
+    var assigneeAnd = '';
+    
+    if(assignees.length>1){
+      assigneeAnd = 'and (' + assignees.length + ') other.';
+    }
+    
+    var html = '<div class="row">'+
+               '  <div class="col-sm-9 card-title">'+
+               '    <strong>' + title + '</strong> assigned to <strong>' + assignees[0].name + assigneeAnd + '</strong>'+
+               '    <span class="status-indicator-' + status +'">- ' + status + '</span>'+
+               '  </div>'+
+               '  <div class="col-sm-3 pull-right card-title-create-date">' + dueDate + '</div>'+
+               '</div>';
+    return html;
+  }
+    
+  function getCardToolbar(){
+    var html = 
+          '<!-- Toolbar -->'+
+            '<div class="row">'+
+            '  <!-- Nav Pills -->'+
+            '  <div class="card-nav-pills col-sm-7">'+
+            '    <ul class="nav nav-pills">'+
+            '      <li class="active"><a>Overview</a></li>'+
+            '      <li><a>Assignees</a></li>'+
+            '      <li><a>Documents</a></li>'+
+            '      <li><a>Activity Log</a></li>'+
+            '      <li><a>Details</a></li>'+
+            '    </ul>'+
+            '  </div>'+
+            ''+  
+            '  <!-- Right hand functionality -->'+
+            '  <div class="col-sm-5 pull-right" style="text-align: right;">'+
+            '    <span class="glyphicon glyphicon-star" aria-hidden="true"></span>'+
+            '    <div class="btn-group">'+
+            '      <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-pressed="false">'+
+            '        <span class="glyphicon glyphicon-share" aria-hidden="true"></span>'+
+            '      </button>'+
+            '      <ul class="dropdown-menu" role="menu">'+
+            '        <li><a href>Add to Calendar</a></li>'+
+            '        <li><a href>Send Email Reminder</a></li>'+
+            '      </ul>'+
+            '    </div>'+
+            '    <button type="button" class="btn btn-default btn-sm btn-edit-task" data-toggle="button" aria-pressed="false" autocomplete="off">'+
+            '      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>'+
+            '    </button>'+
+            '    <button type="button" class="btn btn-default btn-sm" data-toggle="button" aria-pressed="false" autocomplete="off">'+
+            '      <span class="glyphicon glyphicon-compressed" aria-hidden="true"></span>'+
+            '    </button>'+
+            '    <button type="button" class="btn btn-default btn-sm" aria-pressed="false" autocomplete="off">'+
+            '      <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>'+
+            '    </button>'+
+            '  </div>'+
+            '</div> <!-- End Toolbar Row -->';
+    return html;
+  }
+  
+  function getTabWrapper(tabHtml, tabClassName, hiddenClass){
+    if(hiddenClass===undefined){ hiddenClass='';}
+    var html =  '  <div class="' + tabClassName + ' card-tab ' + hiddenClass + '">';
+        html += tabHtml;
+        html += '  </div>';
+    return html;           
+  }
+          
+  function getOverviewTab(description){
+    var html = 
+         '       <h4></h4>'+
+         '       <div class="card-view card-content">'+
+         '         <p>' + description + '</p>'+
+         '       </div>'+
+         '       '+
+         '       <div class="card-edit card-content hidden">'+
+         '         <form name="card-overview">'+
+         '           <div class="form-group">'+
+         '             <label for="overview">Description:</label>'+
+         '             <div>'+
+         '               <textarea class="form-control input-sm" rows="6" id="overview" required>'+ description +'</textarea>'+
+         '             </div>'+
+         '           </div>'+
+         '           <div class="form-group">'+
+         '             <button type="button" class="btn btn-primary btn-sm">Save</button>'+
+         '             <button type="button" class="btn btn-default btn-sm btn-cancel-edit">Cancel</button>'+
+         '           </div>'+
+         '         </form>'+
+         '       </div>';
+    return html;
+  }
+      
+  function getAssigneesTab(assignees){
+    var html = 
+           '     <h4></h4>'+
+           '     <div class="card-view card-content">'+
+           '       <p>' + assignees[0].name + ' was assigned as the lead for this task.</p>';
+    html+= getAssigneesDataTable(assignees);
+    html+= '     </div>'+
+           ''+   
+           '     <div class="card-edit card-content hidden">';
+    html+= getAssigneesDataTableForEdit(assignees);
+    html+= '       <div>'+
+           '         <button type="button" class="btn btn-primary btn-sm">Save</button>'+
+           '         <button type="button" class="btn btn-default btn-sm btn-cancel-edit">Cancel</button>'+
+           '       </div>'+
+           '     </div>';          
+    return html;
+  }
+            
+  function getAssigneesDataTable(assignees){
+    var html = '<table class="table table-condensed">'+
+               '  <caption>Task Assignees</caption>'+
+               '         <thead>'+
+               '           <tr>'+
+               '             <td>#</td><td>Name</td><td>Email</td><td>Office</td><td>Mobile</td>'+
+               '           </tr>'+
+               '         </thead>'+
+               '         <tbody>';
+  	for(var i=0;i<assignees.length;i++) {           
+       html += '           <tr>'+
+               '             <td>' +(i+1) + '</td>'+
+               '             <td>' + assignees[i].name + '</td>'+
+               '             <td>' + assignees[i].email + '</td>'+
+               '             <td>' + assignees[i].phone1 + '</td>'+
+               '             <td>' + assignees[i].phone2 + '</td>'+
+               '           </tr>';              
+    }
+       html += '         </tbody>'+
+               '       </table>';
+    return html;
+  }
+  
+  function getAssigneesDataTableForEdit(assignees){
+    var html = '     <table class="table table-condensed">'+
+               '       <caption>Task Assignees</caption>'+
+               '         <thead>'+
+               '           <tr>'+
+               '             <td></td><td>#</td><td>Name</td><td>Email</td><td>Office</td><td>Mobile</td><td></td>'+
+               '           </tr>'+
+               '         </thead>'+
+               '         <tbody>';
+  	for(var i=0;i<assignees.length;i++) {           
+       html += '           <tr>'+
+               '             <td><span class="glyphicon glyphicon-minus-sign btn-remove-row" aria-hidden="true"></span></td>'+
+               '             <td>' +(i+1) + '</td>'+
+               '             <td><input type="text" class="form-control" placeholder="Jane Doe" value="' + assignees[i].name + '" /></td>'+
+               '             <td><input type="text" class="form-control" placeholder="Assignee@gmail.com" value="' + assignees[i].email + '" /></td>'+
+               '             <td><input type="text" class="form-control" placeholder="(202)123-4567" value="' + assignees[i].phone1 + '" /></td>'+
+               '             <td><input type="text" class="form-control" placeholder="(202)123-4567" value="' + assignees[i].phone2 + '" /></td>'+
+               '             <td>'+
+               '               <span class="glyphicon glyphicon-triangle-top btn-move-up" aria-hidden="true"></span>'+
+               '               <span class="glyphicon glyphicon-triangle-bottom btn-move-down" aria-hidden="true"></span>'+
+               '             </td>'+
+               '           </tr>';              
+    }
+       html += '         </tbody>'+
+               '       </table>'+
+               '       <div class="add-row">'+
+               '         <span class="glyphicon glyphicon-plus-sign btn-add-assignee-row" aria-hidden="true"></span> Add assignee'+
+               '       </div>';
+    return html;
+  }
+  
+  function getNewAssigneeRowHtml(rowNum){
+    var html = '           <tr>'+
+               '             <td><span class="glyphicon glyphicon-minus-sign btn-remove-row" aria-hidden="true"></span></td>'+
+               '             <td>' + rowNum + '</td>'+
+               '             <td><input type="text" class="form-control" placeholder="Jane Doe" /></td>'+
+               '             <td><input type="text" class="form-control" placeholder="Assignee@gmail.com" /></td>'+
+               '             <td><input type="text" class="form-control" placeholder="(202)123-4567" /></td>'+
+               '             <td><input type="text" class="form-control" placeholder="(202)123-4567" /></td>'+
+               '             <td>'+
+               '               <span class="glyphicon glyphicon-triangle-top btn-move-up" aria-hidden="true"></span>'+
+               '               <span class="glyphicon glyphicon-triangle-bottom btn-move-down" aria-hidden="true"></span>'+
+               '             </td>'+
+               '           </tr>';
+    return html;
+  }
+  
+  function getDocumentsTab(documents){
+    var html = 
+           '   <div class="hidden card-tab documents-tab">'+
+           '     <h4></h4>'+
+           '     <div class="card-view card-content">';
+    html+= getDocumentsDataTable(documents);
+    html+= '     </div>'+
+           ''+   
+           '     <div class="card-edit card-content hidden">'+
+           '       <!-- TODO -->'+
+           '     </div>'+
+           '   </div>';
+    return html;
+  }
+            
+  function getDocumentsDataTable(documents){
+    var html = '<table class="table table-condensed">'+
+               '  <caption>Associated Documentation</caption>'+
+               '         <thead>'+
+               '           <tr>'+
+               '              <td>#</td><td>Date Added</td><td>Name</td><td>Description</td><td>URL</td>'+
+               '           </tr>'+
+               '         </thead>'+
+               '         <tbody>';
+  	for(var i=0;i<documents.length;i++) {           
+       html += '           <tr>'+
+               '             <td>' +(i+1) + '</td>'+
+               '             <td>' + documents[i].addedDate + '</td>'+
+               '             <td>' + documents[i].name + '</td>'+
+               '             <td>' + documents[i].description + '</td>'+
+               '             <td><a href="' + documents[i].url + '" target="_blank">' + documents[i].linkText + '</a></td>'+
+               '           </tr>';              
+    }
+       html += '         </tbody>'+
+               '       </table>';
+    return html;
+  }
+  
+  function getActivityLogTab(activityLog){
+    var html = 
+           '   <div class="hidden card-tab activity-tab">'+
+           '     <h4></h4>'+
+           '     <div class="card-view card-content">';
+    html+= getActivityLogDataTable(activityLog);
+    html+= '     </div>'+
+           ''+     
+           '     <div class="card-edit card-content hidden">'+
+           '       <!-- TODO -->'+
+           '     </div>'+
+           '   </div>';
+    return html;
+  }
+            
+  function getActivityLogDataTable(activityLog){
+    var html = '<table class="table table-condensed">'+
+               '  <caption>Activity Log</caption>'+
+               '         <thead>'+
+               '           <tr>'+
+               '              <td>#</td><td>Date Added</td><td>Submitted by</td><td>Activity</td><td>Comment</td>'+
+               '           </tr>'+
+               '         </thead>'+
+               '         <tbody>';
+  	for(var i=0;i<activityLog.length;i++) {           
+       html += '           <tr>'+
+               '             <td>' +(i+1) + '</td>'+
+               '             <td>' + activityLog[i].addedDate + '</td>'+
+               '             <td>' + activityLog[i].submittedBy + '</td>'+
+               '             <td>' + activityLog[i].activity + '</td>'+
+               '             <td>' + activityLog[i].comment + '</td>'+
+               '           </tr>';              
+    }
+       html += '         </tbody>'+
+               '       </table>';
+    return html;
+  }
+  
+  function getDetailsTab(createdDate, creator, owner, priority){
+    var html = 
+         '     <div class="hidden card-tab details-tab">'+
+         '       <h4></h4>'+
+         '       <div class="card-view card-content">'+
+         '           <div class="row">'+
+         '             <label class="col-sm-2 control-label">Date Created:</label>'+
+         '             <div class="col-sm-10">'+ createdDate + '</div>'+
+         '           </div>'+
+         '           <div class="row">'+
+         '             <label class="col-sm-2 control-label">Created By:</label>'+
+         '             <div class="col-sm-10">'+ creator + '</div>'+
+         '           </div>'+
+         '           <div class="row">'+
+         '             <label class="col-sm-2 control-label">Owned By:</label>'+
+         '             <div class="col-sm-10">'+ owner + '</div>'+
+         '           </div>'+
+         '           <div class="row">'+
+         '             <label class="col-sm-2 control-label">Priority:</label>'+
+         '             <div class="col-sm-10">'+ priority + '</div>'+
+         '           </div>'+
+         '       </div>'+
+         '       '+
+         '       <div class="card-edit card-content hidden">'+
+         '         <form name="card-overview">'+
+         '           <div class="form-group">'+
+         '             <label for="overview">Description:</label>'+
+         '             <div>'+
+         '               <textarea class="form-control input-sm" rows="6" id="overview" required></textarea>'+
+         '             </div>'+
+         '           </div>'+
+         '         </form>'+
+         '       </div>'+
+         '     </div>';
+    return html;
+  }
+  var currentUser = "mpcoulon@gmail.com";
+  var tasks = [
+      {
+        createdDate: "4/25/2015",
+        creator: "mpcoulon@gmail.com",
+        owner: "mpcoulon@gmail.com",
+        title: "Take out the trash",
+        description: "The trash is getting stinky, take it out now!!!",
+        dueDate: "4/25/2015",
+        assignees: [{name: "Matt C", email: "mpcoulon@gmail.com", phone1: "(123)456-7890", phone2: "(123)456-8000"}],
+        status: "New",
+        priority: 10,
+        documents: [{addedDate: "4/25/2015", name: "Sticky note from Mella", description: "Take out the trash...", url: "http://www.nfl.com", linkText: "sticky"}],
+        activityLog: [{addedDate: "4/25/2015", submittedBy: "mpcoulon@gmail.com", activity: "Created Task", comment: ""}]
+      },
+      {
+        createdDate: "4/25/2015",
+        creator: "mellabyte@gmail.com",
+        owner: "mellabyte@gmail.com",
+        title: "Wash the dishes",
+        description: "Wash your pasta dishes!!!",
+        dueDate: "4/25/2015",
+        assignees: [{name: "Matt C", email: "mpcoulon@gmail.com", phone1: "(123)456-7890", phone2: "(123)456-8000"}],
+        status: "New",
+        priority: 10,
+        documents: [{addedDate: "4/25/2015", name: "Sticky note from Mella", description: "Do the dishes...", url: "http://www.nfl.com", linkText: "sticky"}],
+        activityLog: [{addedDate: "4/25/2015", submittedBy: "mpcoulon@gmail.com", activity: "Created Task", comment: ""}]
+      }
+    ];
+  
+  buildCardsListGroup();
 });
 </script>

@@ -1,16 +1,38 @@
-<table class="table table-bordered table-hover tablesorter" id="myTasksTable">
-	<caption>My Tasks</caption>
-	<thead>
-		<tr>
-			<th><span>Name</th></span>
-			<th><span>Due Date</th></span>
-			<th><span>Priority</th></span>
-			<th><span>Files</th></span>
-			<th><span>Requester</th></span>
-			<th><span>Creator</th></span>
-			<th><span>Date Created</th></span>
-		</tr>
-	</thead>
-	<tbody>
-	</tbody>
-</table>
+<div class="row">
+  <div class="col-sm-3">
+    <ul id="task-collections-list" class="list-group">
+      <li class="list-group-item active">
+        <span class="badge"></span>
+        <span class="owned">Tasks I Own</span>
+      </li>
+      <li class="list-group-item">
+        <span class="badge"></span>
+        <span class="assigned">Tasks Assigned to Me</span>
+      </li>
+      <li class="list-group-item">
+        <span class="badge"></span>
+        Recent
+      </li>
+      <li class="list-group-item">
+        <span class="badge"></span>
+        Starred
+      </li>
+      <li class="list-group-item">
+        <span class="badge"></span>
+        Trash
+      </li>
+      <!--li class="list-group-item">
+        <span class="badge"></span>
+        Honey-do List
+      </li>
+      <li class="list-group-item">
+        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Collection
+      </li-->
+    </ul>
+  </div>
+
+  <div class="col-sm-9">
+    <div id="task-list" class="list-group">
+    </div> <!-- End of List Group -->
+  </div> <!-- End of Tasks Area -->
+</div> <!-- End of Row -->
