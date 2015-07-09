@@ -70,7 +70,8 @@ function postTask(postObject) {
 	var assigneeArray = postObject.Assignee.replace(/\s/g, '').split(','),
 	jsonAssigneeArray = [];
 	for(var i=0; i<assigneeArray.length; i++) {
-		jsonAssigneeArray.push('"' + assigneeArray[i] + '"');
+		//jsonAssigneeArray.push('"' + assigneeArray[i] + '"');
+		jsonAssigneeArray.push('{"email" : "' + assigneeArray[i] + '"}');
 	}
 	
 	var tagsArray = postObject.Tags.replace(/\s/g, '').split(','),
