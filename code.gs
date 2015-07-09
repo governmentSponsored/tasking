@@ -99,7 +99,10 @@ function postTask(postObject) {
 	    				'", "Creator": "' + currentUserEmail +
 	    				'", "Assignee": [' + jsonAssigneeArray +
 	    				'], "Tags": [' + jsonTagsArray +
-	    				'], "Activity": [{ "text" : "' + postObject.Activity + '", "date" : "' + new Date() +'" }' + 
+	    				'], "Activity": [{ "comment" : "' + postObject.Activity + 
+	    								'", "addedDate" : "' + new Date() + 
+	    								'", "submittedBy" : "' + currentUserEmail + 
+	    								'", "activity" : "Created Task" }' + 
 	    				'], "Priority": ' + postObject.Priority +
                         '}'
 	  }
