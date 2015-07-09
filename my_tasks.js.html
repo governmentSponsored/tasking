@@ -82,7 +82,7 @@ $(function() {
       var $currTask = $( "#task-list" ).append(
                           createCard(
                             tasks[task].title, tasks[task].description, tasks[task].dueDate, tasks[task].assignees, 
-                            tasks[task].status, tasks[task].documents, tasks[task].activityLog, tasks[task].createdDate,
+                            tasks[task].status, tasks[task].documents, tasks[task].activityLog, tasks[task].createdAt,
                             tasks[task].creator, tasks[task].owner, tasks[task].priority
                           )
                         );
@@ -103,7 +103,7 @@ $(function() {
   }
   
   function createCard(title, description, dueDate, assignees, status, documents, 
-                      activityLog, createdDate, creator, owner, priority){
+                      activityLog, createdAt, creator, owner, priority){
     var classes = setTaskClasses(status, owner, assignees);
     var html = '<div class="list-group-item card ' + classes + '">'+
                '  <div>';
@@ -115,7 +115,7 @@ $(function() {
         html += getTabWrapper(getAssigneesTab(assignees), 'assignees-tab', 'hidden');
         html += getDocumentsTab(documents);
         html += getActivityLogTab(activityLog);
-        html += getDetailsTab(createdDate, creator, owner, priority);
+        html += getDetailsTab(createdAt, creator, owner, priority);
         html += '      </div>'+ //End tabs container
                 '    </section>'+
                 '  </div>'+
@@ -393,14 +393,14 @@ $(function() {
     return html;
   }
   
-  function getDetailsTab(createdDate, creator, owner, priority){
+  function getDetailsTab(createdAt, creator, owner, priority){
     var html = 
          '     <div class="hidden card-tab details-tab">'+
          '       <h4></h4>'+
          '       <div class="card-view card-content">'+
          '           <div class="row">'+
          '             <label class="col-sm-2 control-label">Date Created:</label>'+
-         '             <div class="col-sm-10">'+ createdDate + '</div>'+
+         '             <div class="col-sm-10">'+ createdAt + '</div>'+
          '           </div>'+
          '           <div class="row">'+
          '             <label class="col-sm-2 control-label">Created By:</label>'+
@@ -432,7 +432,7 @@ $(function() {
   var currentUser = "mpcoulon@gmail.com";
   var tasks = [
       {
-        createdDate: "4/25/2015",
+        createdAt: "4/25/2015",
         creator: "mpcoulon@gmail.com",
         owner: "mpcoulon@gmail.com",
         title: "Take out the trash",
@@ -445,7 +445,7 @@ $(function() {
         activityLog: [{addedDate: "4/25/2015", submittedBy: "mpcoulon@gmail.com", activity: "Created Task", comment: ""}]
       },
       {
-        createdDate: "4/25/2015",
+        createdAt: "4/25/2015",
         creator: "mellabyte@gmail.com",
         owner: "mellabyte@gmail.com",
         title: "Wash the dishes",
