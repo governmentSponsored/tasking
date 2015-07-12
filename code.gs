@@ -148,7 +148,7 @@ function getSpecificTasks(query) {
 	
 	for(i; i<length; i++) {
 		currentTask = allTasks[i];
-		currentTaskString = currentTask.Name + currentTask.Requester + currentTask.Owner + currentTask.Creator + currentTask.Description;
+		currentTaskString = currentTask.Name + currentTask.Requester + currentTask.Owner + currentTask.Creator + currentTask.Description + currentTask.Status;
 		if(currentTaskString.toLowerCase()
 							.indexOf(query.toLowerCase()) > -1) {
 			resultArray.push(currentTask);
