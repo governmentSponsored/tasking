@@ -6,11 +6,11 @@ Google Apps Script (GAS) based tasking application with a Parse cloud NoSQL data
 
 [Here is the less stable development version with additional functionality (url parameters, better ui, etc)](https://script.google.com/macros/s/AKfycbzR8W2kx5v9aj_g2BzTtfePfjehYgNCDyCouDi-odUhxylba6IL/exec)
 
-To see the added use of url parameters try any of the following:
-* ?page=myTasks
-* ?page=create
-* ?page=searchTasks
-* ?page=searchTasks&query=finished (this will only work if you have an existing task with the word finish in it somewhere or it's status is finished)
+* Only in Dev: To see the added use of url parameters try any of the following:
+ * ?page=myTasks
+ * ?page=create
+ * ?page=searchTasks
+ * ?page=searchTasks&query=finished (this will only work if you have an existing task with the word finish in it somewhere or it's status is finished)
 
 # Overview
 Originally this application used google's built-in NoSQL database ScriptDB, but as Google removed that service, this application needed to undergo a massive overhaul.
